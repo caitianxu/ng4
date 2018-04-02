@@ -1,0 +1,116 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        资源中心
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        批量解析
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+    <div class="tableListSearch">
+      <div nz-row nz-form-item>
+        <div class="row-actions">
+          <button nz-button nzType="primary" *ngIf="this.service.validataAction('cw_analysis_add')"
+                  (click)="_cwAnalysisAdd()">
+            <i class="anticon anticon-plus"></i>
+            <span>新建解析</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <nz-table #nzTable
+              nzShowSizeChanger
+              [nzShowTotal]="true"
+              [nzAjaxData]="tableData"
+              [nzLoading]="_loading"
+              (nzPageIndexChangeClick)="param.pageNum=$event;_reload($event)"
+              (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;_reload($event)"
+              [nzPageSize]="param.pageSize"
+              [nzPageIndex]="param.pageNum"
+              [nzTotal]="param.total">
+      <thead nz-thead>
+      <tr>
+        <th nz-th>
+          <span>任务名称</span>
+        </th>
+        <th nz-th>
+          <span>解析地址</span>
+        </th>
+        <th nz-th>
+          <span>创建时间</span>
+        </th>
+        <th nz-th>
+          <span>状态</span>
+        </th>
+        <th nz-th>
+          <span>文件数量</span>
+        </th>
+        <th nz-th>
+          <span>成功数量</span>
+        </th>
+        <th nz-th>
+          <span>操作</span>
+        </th>
+      </tr>
+      </thead>
+      <tbody nz-tbody>
+      <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+        <td nz-td>{{data.upload_name}}</td>
+        <td nz-td>{{data.upload_url}}</td>
+        <td nz-td>{{data.create_time}}</td>
+        <td nz-td>
+          <label *ngIf="data.status==1" style="color:#999">未解析</label>
+          <label *ngIf="data.status==2" style="color:#f90">解析中</label>
+          <label *ngIf="data.status==3" style="color:green">解析完成</label>
+          <label *ngIf="data.status==4" style="color:#f00">解析失败</label>
+        </td>
+        <td nz-td>{{data.file_num}}</td>
+        <td nz-td>{{data.final_num}}</td>
+        <td nz-td>
+          <ng-container *ngIf="data.status != 2">
+            <a (click)="_editRow(data)">修改</a>
+            <span nz-table-divider></span>
+            <a (click)="_startRow(data)">解析</a>
+          </ng-container>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-content>
+</nz-layout>
+
+<nz-modal [nzMaskClosable]="false"
+          [nzWrapClassName]="'vertical-center-modal'"
+          [nzContent]="modalContent"
+          [nzTitle]="'任务编辑'"
+          (nzOnCancel)="_cancelMiddle($event)"
+          (nzOnOk)="_okMiddle($event)"
+          [nzVisible]="isVisibleMiddle">
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()">
+      <div nz-form-item nz-row>
+        <div nz-form-label>
+          <label nz-form-item-required>任务名称</label>
+        </div>
+        <div nz-form-control nzHasFeedback>
+          <nz-input formControlName="upload_name" [(ngModel)]="formBean.upload_name"
+                    [nzPlaceHolder]="'请输入任务名称'"></nz-input>
+        </div>
+      </div>
+      <div nz-form-item nz-row>
+        <div nz-form-label>
+          <label nz-form-item-required>任务路径</label>
+        </div>
+        <div nz-form-control nzHasFeedback>
+          <nz-input formControlName="upload_url" [(ngModel)]="formBean.upload_url" [nzPlaceHolder]="'请输入路径'"></nz-input>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+</nz-modal>

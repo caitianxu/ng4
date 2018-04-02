@@ -1,0 +1,168 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        消息管理
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content" style="padding-top: 20px;">
+    <div class="content-left-li">
+      <nz-card style="width:100%;">
+        <ng-template #title>
+          模块列表
+        </ng-template>
+        <ng-template #extra *ngIf="this.service.validataAction('message_module_add')">
+          <a (click)="_addModel()">新增</a>
+        </ng-template>
+        <ng-template #body>
+          <ng-container *ngFor="let item of modeList">
+            <div class="mk-item" [ngClass]="{'selected': item.mod_id == param.mod_id}" (click)="set_mod_id(item)">
+              <label>{{item.module_name}}</label>
+              <span>
+                <button nz-button [nzType]="'dashed'" [nzShape]="'circle'" (click)="_editModel(item)" *ngIf="this.service.validataAction('message_module_edit')">
+                  <i class="anticon anticon-edit"></i>
+                </button>
+                <nz-popconfirm [nzTitle]="'删除后数据无法找回,确认删除吗？'" (nzOnConfirm)="_delModel(item)" [nzPlacement]="'bottom'">
+                  <button nz-popconfirm nz-button nzType="danger" [nzShape]="'circle'" *ngIf="this.service.validataAction('message_module_del')">
+                    <i class="anticon anticon-delete"></i>
+                  </button>
+                </nz-popconfirm>
+              </span>
+            </div>
+          </ng-container>
+        </ng-template>
+      </nz-card>
+    </div>
+
+    <div class="content-right-con">
+      <div class="tableListSearch">
+        <!--表单-->
+        <form nz-form>
+          <!--行-->
+          <div nz-row nz-form-item>
+            <div class="row-actions">
+              <button nz-button nzType="primary" type="button" (click)="_addMessage()" *ngIf="this.service.validataAction('message_add')">
+                <i class="anticon anticon-plus"></i>
+                <span>新增</span>
+              </button>
+              <nz-popconfirm [nzTitle]="'删除后数据无法找回,确认删除吗？'" (nzOnConfirm)="delRows()" [nzPlacement]="'bottom'">
+                <button nz-popconfirm nz-button nzType="danger" type="button" *ngIf="this.service.validataAction('message_del')">
+                  <i class="anticon anticon-delete"></i>
+                  <span>删除</span>
+                </button>
+              </nz-popconfirm>
+
+            </div>
+            <div class="row-questions">
+              <nz-input [nzType]="'search'" [nzPlaceHolder]="'模糊搜索'" name="searchText" [(ngModel)]="paramCol.searchText" style="width: 200px;"
+                (nzOnSearch)="reload(true)"></nz-input>
+            </div>
+          </div>
+        </form>
+      </div>
+      <nz-table #nzTable nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="tableData" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+        [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;reload($event)"
+        (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;reload($event)">
+        <thead nz-thead>
+          <tr>
+            <th nz-th nzCheckbox>
+              <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+              </label>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>编码</span>
+              <nz-table-sort [(nzValue)]="sortMap.code" (nzValueChange)="sort('code', $event)"></nz-table-sort>
+            </th>
+            <th nz-th [nzWidth]="'35%'">
+              <span>消息</span>
+              <nz-table-sort [(nzValue)]="sortMap.message" (nzValueChange)="sort('message', $event)"></nz-table-sort>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>模块</span>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>更新时间</span>
+              <nz-table-sort [(nzValue)]="sortMap.update_time" (nzValueChange)="sort('update_time', $event)"></nz-table-sort>
+            </th>
+            <th nz-th>
+              <span>操作</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td nzCheckbox>
+              <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)" *ngIf="data.msg_id"></label>
+            </td>
+            <td nz-td>
+              <span *ngIf="data.msg_id != edieMessage.msg_id">{{data.code}}</span>
+              <span *ngIf="data.msg_id == edieMessage.msg_id">
+                <nz-input [nzType]="'text'" name="code" [(ngModel)]="data.code"></nz-input>
+              </span>
+            </td>
+            <td nz-td>
+              <span *ngIf="data.msg_id != edieMessage.msg_id">{{data.message}}</span>
+              <span *ngIf="data.msg_id == edieMessage.msg_id" style="display:block">
+                <nz-input [nzType]="'text'" name="message" [(ngModel)]="data.message" style="width: 90%"></nz-input>
+              </span>
+            </td>
+            <td nz-td>
+              <span *ngIf="data.msg_id != edieMessage.msg_id">{{data.module_name}}</span>
+              <span *ngIf="data.msg_id == edieMessage.msg_id">
+                <!-- <nz-input [nzType]="'text'" name="module_name" [(ngModel)]="data.module_name"></nz-input> -->
+                <nz-select [(ngModel)]="data.selectedOption" style="width: 80%" [nzPlaceHolder]="'请选择'">
+                  <nz-option *ngFor="let option of modeList" [nzLabel]="option.module_name" [nzValue]="option" [nzDisabled]="option.disabled">
+                  </nz-option>
+                </nz-select>
+              </span>
+            </td>
+            <td nz-td>{{data.update_time}}</td>
+            <td nz-td>
+              <span *ngIf="data.msg_id != edieMessage.msg_id">
+                <a (click)="showModalMiddle(data)">修改</a>
+              </span>
+              <span *ngIf="data.msg_id == edieMessage.msg_id">
+                <a (click)="_saveRow(data)">保存</a>
+                <span nz-table-divider></span>
+                <a (click)="_cancel(data)">取消</a>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </nz-content>
+</nz-layout>
+
+
+
+<nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="modalContent" [nzVisible]="editModelBean.isVisibleMiddle"
+  [nzTitle]="'模块编辑'" (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle($event)">
+  <ng-template #modalContent>
+
+    <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()">
+      <div nz-form-item nz-row class="notErrMsg">
+        <div nz-form-label>
+          <label nz-form-item-required>模块名称</label>
+        </div>
+        <div nz-form-control>
+          <nz-input formControlName="module_name" [nzType]="'text'" [(ngModel)]="editModelBean.module_name" [nzPlaceHolder]="'请填写模块名称'"></nz-input>
+        </div>
+      </div>
+      <div nz-form-item nz-row class="notErrMsg">
+        <div nz-form-label>
+          <label nz-form-item-required>模块简称</label>
+        </div>
+        <div nz-form-control>
+          <nz-input formControlName="module_short_name" [nzType]="'text'" [(ngModel)]="editModelBean.module_short_name" [nzPlaceHolder]="'请填写模块简称'"></nz-input>
+        </div>
+      </div>
+      <button style="display:none;">save</button>
+    </form>
+
+  </ng-template>
+</nz-modal>

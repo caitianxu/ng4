@@ -1,0 +1,33 @@
+.content-left-li{
+    float: left;
+    height: 100%;
+    overflow: hidden;
+    width: 300px;
+    padding-right: 25px;
+}
+.mk-item{
+    padding: 5px 5px 5px 10px;
+    cursor: pointer;
+    height: 38px;
+    margin: 5px 0;
+}
+.mk-item label{
+    cursor: pointer;
+    line-height: 28px;
+}
+.mk-item:hover{
+    background: #f4f4f4;
+}
+.mk-item.selected{
+    background: #108ee9;
+    color: #fff;
+}
+.mk-item span{
+    float: right;
+}
+.content-right-con{
+    float: left;
+    width: calc(100% - 300px);
+    width: -moz-calc(100% - 300px);
+    width: -webkit-calc(100% - 300px);
+}

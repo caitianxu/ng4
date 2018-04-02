@@ -1,0 +1,350 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        知识服务
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        二维码管理
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+    <ng-container *ngIf="formBeanObject">
+      <nz-tabset [(nzSelectedIndex)]="nzSelectedIndex" (nzSelectedIndexChange)="_nzSelectedIndexChange($event)">
+        <nz-tab *ngFor="let tab of tabs">
+          <ng-template #nzTabHeading>
+            <i [ngClass]="tab.icon"></i>
+            {{tab.name}}
+          </ng-template>
+        </nz-tab>
+      </nz-tabset>
+    </ng-container>
+    <ng-container *ngIf="nzSelectedIndex == 0">
+      <div class="tableListSearch">
+        <!--表单-->
+        <form nz-form>
+          <!--行-->
+          <div nz-row nz-form-item>
+            <!--列-->
+            <div nz-col [nzSpan]="6">
+              <div nz-form-label nz-col [nzSpan]="5">
+                <label>二维码标签</label>
+              </div>
+              <div nz-form-control nz-col [nzSpan]="17">
+                <nz-select nzAllowClear [nzPlaceHolder]="'搜索/选择标签'" (nzSearchChange)="searchChange($event)" [nzNotFoundContent]="'无法找到'"
+                  name="tag_id" [(ngModel)]="paramCol.tag_id" nzShowSearch>
+                  <nz-option *ngFor="let option of tagOptions" [nzLabel]="option.tag_name" [nzValue]="option.tag_id">
+                  </nz-option>
+                </nz-select>
+              </div>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <div nz-form-label nz-col [nzSpan]="5">
+                <label>二维码名称</label>
+              </div>
+              <div nz-form-control nz-col [nzSpan]="17">
+                <nz-input [nzType]="'text'" name="searchText" [(ngModel)]="paramCol.searchText" [nzPlaceHolder]="'模糊查询音频名称'" [nzSize]="'default'"></nz-input>
+              </div>
+            </div>
+            <div nz-col [nzSpan]="5" style="padding:2px 0;">
+              <button nz-button nzType="primary" (click)="_reload(true)" [nzLoading]="_loading">
+                <i class="anticon anticon-search"></i>
+                <span>查询</span>
+              </button>
+              <button nz-button nzType="button" (click)="_resetForm()">
+                <span>重置</span>
+              </button>
+            </div>
+            <div nz-col [nzSpan]="7" style="text-align: right;">
+              <button nz-button nzType="button" (click)="_showIsVisible()">
+                <i class="anticon anticon-plus"></i>
+                <span>二维码新增</span>
+              </button>
+              <button nz-button nzType="button" (click)="_resetForm()">
+                <i class="anticon anticon-export"></i>
+                <span>二维码导出</span>
+              </button>
+            </div>
+          </div>
+          <!--行-->
+        </form>
+      </div>
+      <div class="table-list">
+        <div nz-col [nzSpan]="6" class="cat-item" *ngFor="let data of tableData">
+          <nz-card [nzBordered]="false">
+            <ng-template #body style="padding:10px">
+              <div class="code-img">
+                <img src="{{service.ctxPath + data.code_path}}">
+              </div>
+              <div class="book-info">
+                <h1>{{data.code_name}}</h1>
+                <p *ngIf="data.tag_names">
+                  <ng-container *ngFor="let item of data.tag_names.split(',')">
+                    <nz-tag [nzColor]="'blue'">{{item}}</nz-tag>
+                  </ng-container>
+                </p>
+                <div>
+                  <button nz-button nzType="button" (click)="_settingBean(data)">
+                    <span>配置</span>
+                  </button>
+                  <button nz-button nzType="button" (click)="_showIsVisible(data)">
+                    <span>修改</span>
+                  </button>
+                  <nz-popconfirm [nzTitle]="'确定要删除这条二维码吗？'" (nzOnConfirm)="_delDataRow(data)" [nzPlacement]="'left'">
+                    <button nz-popconfirm nz-button nzType="danger">
+                      <span>删除</span>
+                    </button>
+                  </nz-popconfirm>
+
+                </div>
+              </div>
+              <div class="weixin-list">
+                <p *ngIf="!data.works || data.works.length == 0" class="undata">还未配置任何关联作品</p>
+                <ng-container *ngFor="let item of data.works">
+                  <div class="weixin-item">
+                    <div class="cover" style="background-image:url({{service.ctxPath+item.works_cover_small}})"></div>
+                    <div class="title">
+                      <p>{{item.works_name}}</p>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </ng-template>
+          </nz-card>
+        </div>
+
+      </div>
+      <div class="list-pagination" *ngIf="param.pages > 1">
+        <nz-pagination [nzPageIndex]="param.pageNum" [nzTotal]="param.total" [nzPageSize]="param.pageSize" (nzPageIndexChange)="param.pageNum=$event;_reload()"></nz-pagination>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="nzSelectedIndex == 1">
+
+        <!--二维码配置-->
+        <div class="code-setting">
+          <div class="gutter-row-code">
+            <div class="code-cover">
+                <img src="http://cjszyun.cn/uploads/20180401150351/1a4fa340500949acaf6c07294be839dc.png">
+            </div>
+            <div class="code-info">
+              <h1>{{formBeanObject.code_name}}</h1>
+              <p>简介：{{formBeanObject.remark}}</p>
+              <p>创建时间：{{formBeanObject.create_time}}</p>
+              <div>
+                  <button nz-button [nzType]="'primary'" [nzSize]="size">
+                      <i class="anticon anticon-download"></i><span>下载二维码</span>
+                    </button>
+              </div>
+            </div>
+            <div class="code-data-base">
+              <div class="base-item">
+                <h1>1</h1>
+                <p><i class="anticon anticon-qrcode"></i> 扫描次数</p>
+              </div>
+              <div class="base-item">
+                <h1>1</h1>
+                <p><i class="anticon anticon-eye-o"></i> 浏览量</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--二维码配置-->
+        <nz-tabset [nzTabPosition]="'top'" [nzType]="'card'" [nzShowPagination]="false" [nzTabBarExtraTemplate]="tabBarExtraContent">
+          <nz-tab>
+            <ng-template #nzTabHeading>作品列表</ng-template>
+            <div>
+                <nz-table #nzTable [nzDataSource]="formBeanObject.works" nzIsPagination="false">
+                  <thead nz-thead>
+                    <tr>
+                      <th nz-th>
+                        <span>作品</span>
+                      </th>
+                      <th nz-th nzWidth="200px">
+                        <span>创建时间</span>
+                      </th>
+                      <th nz-th nzWidth="150px">
+                        <span>排序</span>
+                      </th>
+                      <th nz-th nzWidth="150px">
+                        <span>操作</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody nz-tbody>
+                    <tr nz-tbody-tr *ngFor="let data of nzTable.data;let idx=index">
+                      <td nz-td>
+                        <div class="zp-list">
+                          <div class="zp-cover" style="background-image:url({{service.ctxPath+data.works_cover_small}})"></div>
+                          <div class="zp-info">
+                            <h1>{{data.works_name}}</h1>
+                            <p style="padding:5px 0;">类型：{{data.works_type}}</p>
+                            <div *ngIf="data.tag_names">
+                              <ng-container *ngFor="let item of data.tag_names.split(',')">
+                                <nz-tag [nzColor]="'blue'">{{item}}</nz-tag>
+                              </ng-container>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td nz-td>{{data.create_time}}</td>
+                      <td nz-td>
+                        <a (click)="_workOrder(data, idx)"><i class="anticon anticon-arrow-up" style="font-size:20px"></i></a>
+                      </td>
+                      <td nz-td>
+                        <a (click)="_workDelete(data)"><i class="anticon anticon-delete" style="font-size:20px"></i></a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </nz-table>
+            </div>
+          </nz-tab>
+          <nz-tab>
+            <ng-template #nzTabHeading>扫描记录</ng-template>
+            <div>
+              扫描记录
+            </div>
+          </nz-tab>
+          <nz-tab>
+            <ng-template #nzTabHeading>浏览数据</ng-template>
+            <div>
+              浏览数据
+            </div>
+          </nz-tab>
+          <ng-template #tabBarExtraContent>
+              <button nz-button nzType="primary" (click)="_addWork()">
+                  <i class="anticon anticon-plus"></i>
+                  <span>关联作品</span>  
+              </button>
+          </ng-template>
+        </nz-tabset>
+
+
+    </ng-container>
+  </nz-content>
+
+</nz-layout>
+
+<nz-modal [nzVisible]="isVisible" [nzTitle]="'配置二维码'" [nzContent]="modalContent" (nzOnCancel)="handleCancel($event)" (nzOnOk)="handleOk($event)">
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()" class="ditForm">
+
+      <div nz-form-item nz-row style="margin-bottom: 10px">
+        <div nz-form-label nz-col [nzSm]="4" [nzXs]="24" style="text-align:left">
+          <label>二维码名称</label>
+        </div>
+        <div nz-form-control nz-col [nzSm]="20" [nzXs]="24">
+          <nz-input formControlName="code_name" [(ngModel)]="formBean.code_name" [nzPlaceHolder]="''"></nz-input>
+        </div>
+      </div>
+      <div nz-form-item nz-row style="margin-bottom: 10px">
+        <div nz-form-label nz-col [nzSm]="4" [nzXs]="24" style="text-align:left">
+          <label>二维码标签</label>
+        </div>
+        <div nz-form-control nz-col [nzSm]="20" [nzXs]="24">
+          <nz-select nzAllowClear [nzPlaceHolder]="'搜索/选择标签'" (nzSearchChange)="searchChange($event)" [nzMode]="'multiple'" [nzNotFoundContent]="'无法找到'"
+            formControlName="tag_ids" [(ngModel)]="formBean.tag_ids" nzShowSearch>
+            <nz-option *ngFor="let option of tagOptions" [nzLabel]="option.tag_name" [nzValue]="option.tag_id">
+            </nz-option>
+          </nz-select>
+        </div>
+      </div>
+      <div nz-form-item nz-row style="margin-bottom: 10px">
+        <div nz-form-label nz-col [nzSm]="4" [nzXs]="24" style="text-align:left">
+          <label>关联图书</label>
+        </div>
+        <div nz-form-control nz-col [nzSm]="20" [nzXs]="24">
+          <nz-select nzAllowClear [nzPlaceHolder]="'搜索/选择图书'" (nzSearchChange)="searchChangeBook($event)" [nzNotFoundContent]="'无法找到'"
+            formControlName="book_id" [(ngModel)]="formBean.book_id" nzShowSearch>
+            <nz-option *ngFor="let option of bookOptions" [nzLabel]="option.book_name" [nzValue]="option.book_id">
+            </nz-option>
+          </nz-select>
+        </div>
+      </div>
+      <div nz-form-item nz-row style="margin-bottom: 10px">
+        <div nz-form-label nz-col [nzSm]="4" [nzXs]="24" style="text-align:left">
+          <label>简介</label>
+        </div>
+        <div nz-form-control nz-col [nzSm]="20" [nzXs]="24">
+          <nz-input formControlName="remark" [nzType]="'textarea'" [nzRows]="'4'" [(ngModel)]="formBean.remark" [nzPlaceHolder]="''"></nz-input>
+        </div>
+      </div>
+
+      <button style="display:none;">save</button>
+    </form>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [nzWidth]="800" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="seeContent"
+  [nzVisible]="isShowWorkAdd" (nzOnCancel)="workCancel($event)" [nzTitle]="'作品列表'" [nzFooter]="false">
+<ng-template #seeContent>
+    <div class="m-search" style="margin-bottom:15px;">
+      
+        <nz-cascader style="width:200px;margin-right:10px;display:inline-block;" 
+          nzChangeOnSelect
+          [nzPlaceHolder]="'作品分类'"
+          [nzOptions]="workClassData"
+          [nzValueProperty]="'cat_id'"
+          [nzLabelProperty]="'cat_name'"
+          [(ngModel)]="paramWork.cat_ids">
+        </nz-cascader>
+
+        <nz-select nzAllowClear style="width:200px;margin-right:10px;" [nzPlaceHolder]="'作品标签'" (nzSearchChange)="searchChange($event)" [nzNotFoundContent]="'无法找到'"
+          name="tag_id" [(ngModel)]="paramWork.tag_id" nzShowSearch>
+          <nz-option *ngFor="let option of workTagsData" [nzLabel]="option.tag_name" [nzValue]="option.tag_id">
+          </nz-option>
+        </nz-select>
+        <nz-select nzAllowClear style="width:200px;margin-right:10px;" [nzPlaceHolder]="'作品类型'" 
+          name="tag_id" [(ngModel)]="paramWork.works_type">
+          <nz-option *ngFor="let option of workTypeData" [nzLabel]="option" [nzValue]="option">
+          </nz-option>
+        </nz-select>
+        <button nz-button [nzType]="'primary'" (click)="searchWork()">
+          <span>筛选</span>
+        </button>
+    </div>
+    <nz-table #nzTable [nzDataSource]="workTableData" [nzIsPagination]="false">
+        <thead nz-thead>
+          <tr>
+            <th nz-th>
+              <span>作品</span>
+            </th>
+            <th nz-th nzWidth="100px">
+              <span>操作</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td>
+              <div class="zp-list">
+                <div class="zp-cover" style="background-image:url(https://oss.5rs.me/oss/uploadfe/jpg/db24dc12d0406363bd00d52893addac4.jpg?x-oss-process=image/resize,p_100)"></div>
+                <div class="zp-info">
+                  <h1>{{data.works_name}}</h1>
+                  <p>类型：{{data.works_type}}</p>
+                  <p>创建时间：{{data.create_time}}</p>
+                  <div *ngIf="data.tag_names">
+                    <ng-container *ngFor="let item of data.tag_names.split(',')">
+                      <nz-tag [nzColor]="'blue'">{{item}}</nz-tag>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td nz-td>
+              <span *ngIf="_viladateActionText(data)" style="color:green">已添加</span>
+              <a (click)="addworkInfo(data)" *ngIf="!_viladateActionText(data)">添加</a>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div style="text-align:center;padding-top:15px;" *ngIf="paramWork.pages > 1">
+        <nz-pagination [nzPageIndex]="paramWork.pageNum" [nzPageSize]="paramWork.pageSize" [nzTotal]="paramWork.total"
+        (nzPageIndexChange)="paramWork.pageNum=$event;searchWork()"></nz-pagination>
+      </div>
+</ng-template>
+</nz-modal>

@@ -1,0 +1,6 @@
+form .ant-col-12 ~ .ant-col-12{
+    padding-left: 10px;
+}
+form .ant-col-12:first-child{
+    padding-right: 10px;
+}

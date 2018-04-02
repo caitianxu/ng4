@@ -1,0 +1,88 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        权限管理
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content" style="padding-top: 20px;">
+    <div class="content-left-li">
+      <nz-card style="width:100%;">
+        <ng-template #title>
+          <div nz-row nz-form-item style="margin-bottom:15px;">
+            <div class="row-actions" style="width:100%">
+              <nz-select style="width:100%;" [(ngModel)]="param.role_id" [nzPlaceHolder]="'请选择一个角色'" nzShowSearch (ngModelChange)="reload(true)">
+                <nz-option *ngFor="let item of roleRow" [nzLabel]="item.role_name" [nzValue]="item.role_id" ></nz-option>
+              </nz-select>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #body>
+          <nz-table #nzTreeTable [nzDataSource]="tableTreeData" [nzIsPagination]="false" [nzSize]="'middle'">
+            <tbody nz-tbody>
+              <ng-template ngFor let-data [ngForOf]="nzTreeTable.data">
+                <ng-template ngFor let-item [ngForOf]="expandDataCache[data.res_id]">
+                  <tr nz-tbody-tr *ngIf="(item.parent&&item.parent.expand)||!(item.parent)" style="cursor:pointer">
+                    <td nz-td [ngStyle]="{'background-color' : param.pid==item.res_id ? '#daecf9' : ''}" (click)="param.pid=item.res_id;reload(true)">
+                      <nz-row-indent [nzIndentSize]="item.level"></nz-row-indent>
+                      <nz-row-expand-icon [(nzExpand)]="item.expand" (nzExpandChange)="collapse(expandDataCache[data.res_id],item,$event)" [nzShowExpand]="!!item.children && item.children.length > 0"></nz-row-expand-icon>
+                      {{item.res_name}}
+                    </td>
+                  </tr>
+                </ng-template>
+              </ng-template>
+            </tbody>
+          </nz-table>
+        </ng-template>
+      </nz-card>
+    </div>
+    <div class="content-right-con">
+      <nz-table #nzTable [nzDataSource]="tableData" nzShowSizeChanger [nzShowTotal]="true" [nzIsPagination]="false" [nzAjaxData]="tableData" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+        [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;reload($event)"
+        (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;reload($event)">
+        <thead nz-thead>
+          <tr>
+            <th nz-th [nzWidth]="'25%'">
+              <span>名称</span>
+            </th>
+            <th nz-th [nzWidth]="'25%'">
+              <span>资源类型</span>
+            </th>
+            <th nz-th [nzWidth]="'25%'">
+              <span>授权时间</span>
+            </th>
+            <th nz-th [nzWidth]="'25%'">
+              <span>是否授权</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td>
+              <span >{{data.res_name}}</span>
+            </td>
+            <td nz-td>
+              <span [innerHtml]="data.res_type==2?'按钮':'菜单'"></span>
+            </td>
+            <td nz-td>
+              <span >{{data.create_time}}</span>
+            </td>
+            <td nz-td>
+              <span *ngIf="this.service.validataAction('authority_enable')">
+                  <nz-switch [ngModel]="data.enabled == 1" [nzSize]="'small'" (click)="enabled(data)"></nz-switch>
+              </span>
+              <span *ngIf="!this.service.validataAction('authority_enable')">
+                <label *ngIf="data.enabled == 1">是</label>
+                <label *ngIf="data.enabled != 1">否</label>
+              </span>             
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </nz-content>
+</nz-layout>

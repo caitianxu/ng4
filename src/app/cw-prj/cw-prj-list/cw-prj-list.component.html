@@ -1,0 +1,238 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+      <nz-breadcrumb>
+          <nz-breadcrumb-item>
+              <a href="#/home">首页</a>
+          </nz-breadcrumb-item>
+          <nz-breadcrumb-item>
+              项目列表
+          </nz-breadcrumb-item>
+      </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+      <form nz-form>
+        <!--行-->
+         <div nz-row nz-form-item>
+          <div nz-col [nzSpan]="8">
+              <div nz-form-label nz-col [nzSpan]="8">
+                  <label>合作项目名称</label>
+              </div>
+              <div nz-form-control nz-col [nzSpan]="14">
+                  <nz-input [nzType]="'text'" name="searchText" [(ngModel)]="param.searchText" [nzPlaceHolder]="'单行输入'" [nzSize]="'default'"></nz-input>
+              </div>
+          </div>
+          <div nz-col [nzSpan]="8">
+              <div nz-form-label nz-col [nzSpan]="8">
+                  <label>合作分类</label>
+              </div>
+              <div nz-form-control nz-col [nzSpan]="14">
+                  <!-- <nz-select style="width:100%;"  name="project_cat_id" [(ngModel)]="param.project_cat_id" [nzPlaceHolder]="'请选择合作分类'" nzShowSearch>
+                    <nz-option *ngFor="let item of listData" [nzLabel]="item.cat_name" [nzValue]="item.cat_id" ></nz-option>
+                  </nz-select> -->
+                <nz-cascader style="width:100%" name="project_cat_id" nzChangeOnSelect [nzPlaceHolder]="'请选择'" [nzValueProperty]="'cat_id'" [nzLabelProperty]="'cat_name'" [nzOptions]="listData"
+                    [(ngModel)]="param.parent">
+                </nz-cascader>
+              </div>
+          </div>
+          <div nz-col [nzSpan]="8">
+              <div nz-form-label nz-col [nzSpan]="8">
+                  <label>创建时间</label>
+              </div>
+              <div nz-form-control nz-col [nzSpan]="14">
+                  <nz-rangepicker name="searchTime" [(ngModel)]="paramCol.searchTime" [nzPlaceholder]="['起始日期', '截止日期']"></nz-rangepicker>
+              </div>
+          </div>
+        </div> 
+        
+        <div nz-row nz-form-item>
+            <div class="row-actions">
+                <button nz-button nzType="primary" (click)="add()" *ngIf="this.service.validataAction('cw_prj_list_add')">
+                    <i class="anticon anticon-plus"></i>
+                    <span>新增</span>
+                </button>
+            </div>
+            <div class="row-questions">
+                <button nz-button nzType="primary" (click)="reload(true)">
+                    <i class="anticon anticon-search"></i>
+                    <span>查询</span>
+                </button>
+                <button nz-button nzType="" (click)="resetForm()">
+                    <span>重置</span>
+                </button>
+            </div>
+        </div>
+      </form>
+      <nz-table #nzTable  nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="data" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+      [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;load($event)"
+      (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;load($event)">
+        <thead nz-thead>
+        <tr>
+          <th nz-th nzCheckbox>
+            <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+            </label>
+          </th>
+          <th nz-th>
+              <span>合作项目名称</span>
+          </th>
+          <th nz-th [nzWidth]="'20%'">
+              <span>合作分类</span>
+          </th>
+          <th nz-th [nzWidth]="'20%'">
+              <span>创建时间</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+              <span>是否显示</span>
+          </th>
+          <th nz-th [nzWidth]="'20%'">
+              <span>操作</span>
+          </th>
+        </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td nzCheckbox>
+              <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
+              </label>
+            </td>
+            <td nz-td>
+                <span>{{data.project_name}}</span>
+            </td>
+            <td nz-td>
+                <span>{{data.project_cat_id}}</span>
+            </td>
+            <td nz-td>
+                <span>{{data.create_time}}</span>
+            </td>
+            <td nz-td>
+                <nz-switch [(ngModel)]="data.project_id" (click)="_enabled(data)"></nz-switch>
+            </td>
+            <td nz-td>
+              <span *ngIf="this.service.validataAction('cw_prj_list_edit')">
+                <a (click)="edit(data)">修改</a>
+                <span nz-table-divider></span>
+              </span>
+              <span >
+                <a (click)="show(data)">查看</a>
+                <span nz-table-divider></span>
+              </span>
+              <span *ngIf="this.service.validataAction('cw_prj_list_del')">
+                  <nz-popconfirm [nzTitle]="'确定取消吗?'" (nzOnConfirm)="del(data)">
+                    <a nz-popconfirm>删除</a>
+                  </nz-popconfirm>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+  </nz-content>
+</nz-layout>
+
+<nz-modal [nzMaskClosable]="false" [nzWidth]="800" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="modalContent"
+[nzVisible]="isVisibleMiddle" (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle($event)" [nzTitle]="formTitle">
+<ng-template #modalContent>
+  <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()" class="ditForm">
+    <div nz-form-item nz-row>
+        <div nz-col [nzSpan]="12">
+            <div class="userHead">
+                <div class="uimg">
+                    <img *ngIf="selRow.icon" src="{{ service.ctxPath + selRow.icon }}" />
+                </div>
+                <nz-upload [nzShowUploadList]="false" (nzChange)="fileUpload($event)" [nzAccept]="'image/gif,image/jpeg,image/png,image/jpg,image/bmp'"
+                    nzAction="{{service.ctxPath + '/api/system/file/upload'}}" [nzData]="{type:'admin',token:service.token}">
+                    <button nz-button type="button">
+                        <i class="anticon anticon-upload"></i>
+                        <span>上传头像</span>
+                    </button>
+                </nz-upload>
+            </div>
+        </div>
+        <div nz-col [nzSpan]="12">
+            <div nz-form-item nz-row>
+                <div nz-form-label>
+                    <label nz-form-item-required>合作项目名称</label>
+                </div>
+                <div nz-form-control nzHasFeedback>
+                    <nz-input formControlName="project_name"  [(ngModel)]="selRow.project_name" [nzPlaceHolder]="'请输入合作项目名称'"></nz-input>
+                </div>
+            </div>
+            <div nz-form-item nz-row>
+                <div nz-form-label>
+                    <label nz-form-item-required>合作分类</label>
+                </div>
+                <div nz-form-control >
+                    <nz-cascader style="width:100%" formControlName="project_cat_id" nzChangeOnSelect [nzPlaceHolder]="'请选择'" [nzValueProperty]="'cat_id'" [nzLabelProperty]="'cat_name'" [nzOptions]="listData"
+                        [(ngModel)]="selRow.parent">
+                    </nz-cascader>
+                    <!-- <nz-select style="width:100%;" formControlName="project_cat_id" [(ngModel)]="selRow.project_cat_id" [nzPlaceHolder]="'请选择合作分类'" nzShowSearch>
+                      <nz-option *ngFor="let item of listData" [nzLabel]="item.cat_name" [nzValue]="item.cat_id" ></nz-option>
+                    </nz-select> -->
+                </div>
+            </div>
+            <div nz-form-item nz-row>
+                <div nz-form-label>
+                    <label>合作单位</label>
+                </div>
+                <div nz-form-control>
+                    <nz-input formControlName="org" [(ngModel)]="selRow.org" [nzPlaceHolder]="'请输入合作单位'"></nz-input>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div nz-form-item nz-row>
+        <div nz-form-label>
+          <label nz-form-item-required>合作详情</label>
+        </div>
+        <div nz-form-control>
+            
+        </div>
+    </div>
+    <button style="display:none;">save</button>
+  </form>
+</ng-template>
+</nz-modal>
+<nz-modal [nzMaskClosable]="false" [nzWidth]="600" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="showPaper"
+[nzVisible]="isShow"  [nzTitle]="formTitle" (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle($event)" [nzFooter]="'none'">
+<ng-template #showPaper>
+        <nz-card style="width:100%;">
+            <ng-template #body>
+                <div nz-col [nzSpan]="8" style="float:left;border:1px #ddd dashed;height:120px;margin-bottom:15px;background: #f5f8fa;">
+                    <img *ngIf="selRow.icon" src="{{ service.ctxPath + selRow.icon }}" style="float:left;width:100%;height:100%;"/>
+                </div>
+                <div nz-col [nzSpan]="16" style="padding:0 10px;">
+                    <div nz-form-item nz-row style="padding:0 10px;margin-bottom:10px;">
+                        <div nz-form-label>
+                            <label style="font-size:16px;font-weight:bold;">合作项目名称</label>
+                        </div>
+                        <div nz-form-control>
+                            <p [innerHtml]="selRow.project_name"></p>
+                        </div>
+                    </div> 
+                    <div nz-form-item nz-row style="padding:0 10px;margin-bottom:10px;">
+                        <div nz-form-label>
+                            <label style="font-size:16px;font-weight:bold;">合作分类</label>
+                        </div>
+                        <div nz-form-control>
+                            <p [innerHtml]="selRow.project_cat_id"></p>
+                        </div>
+                    </div> 
+                    <div nz-form-item nz-row style="padding:0 10px;margin-bottom:10px;">
+                        <div nz-form-label>
+                            <label style="font-size:16px;font-weight:bold;">合作单位</label>
+                        </div>
+                        <div nz-form-control>
+                            <p [innerHtml]="selRow.org"></p>
+                        </div>
+                    </div> 
+                </div>
+                <div nz-form-item nz-row style="padding:0 10px;float: left;width:100%;">
+                    <div nz-form-label>
+                        <label style="font-size:16px;font-weight:bold;">合作详情</label>
+                    </div>
+                    <div nz-form-control>
+                        <p [innerHtml]="selRow.remark"></p>
+                    </div>
+                </div> 
+            </ng-template>
+        </nz-card>
+</ng-template>
+</nz-modal>

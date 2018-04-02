@@ -1,0 +1,204 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+      <nz-breadcrumb>
+          <nz-breadcrumb-item>
+              <a href="#/home">首页</a>
+          </nz-breadcrumb-item>
+          <nz-breadcrumb-item>
+              标签管理
+          </nz-breadcrumb-item>
+      </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+        <nz-tabset>
+            <nz-tab>
+                <ng-template #nzTabHeading>
+                    品牌标签
+                </ng-template>
+                <form nz-form>
+                    <div nz-row nz-form-item>
+                        <div class="row-actions">
+                        <button nz-button nzType="primary" type="button" (click)="add()" *ngIf="this.service.validataAction('cw_goods_tag_add')">
+                            <i class="anticon anticon-plus" style="font-size:12px;color:#fff;"></i>
+                            <span>新增</span>
+                        </button>
+                        </div>
+                        <div class="row-questions">
+                        <nz-input [nzType]="'search'" [nzPlaceHolder]="'模糊搜索'" name="searchText" [(ngModel)]="param.searchText" style="width: 200px;"
+                            (nzOnSearch)="reload(true)"></nz-input>
+                        </div>
+                    </div>
+                </form>
+               
+                <nz-table #nzTable  nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="data" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+                      [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;load($event)"
+                      (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;load($event)">
+                    <thead nz-thead>
+                        <tr>
+                          <th nz-th nzCheckbox>
+                            <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+                            </label>
+                          </th>
+                          <th nz-th [nzWidth]="'10%'">
+                              <span>品牌编码</span>
+                          </th>
+                          <th nz-th [nzWidth]="'20%'">
+                              <span>品牌名称</span>
+                          </th>
+                          <th nz-th [nzWidth]="'10%'">
+                              <span>创建时间</span>
+                          </th>
+                          <th nz-th [nzWidth]="'20%'">
+                              <span>备注</span>
+                          </th>
+                          <th nz-th>
+                              <span>操作</span>
+                          </th>
+                        </tr>
+                    </thead>
+                    <tbody nz-tbody>
+                        <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+                            <td nz-td nzCheckbox>
+                              <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
+                              </label>
+                            </td>
+                            <td nz-td>
+                                <span>{{data.brand_code}}</span>
+                            </td>
+                            <td nz-td nz-row>
+                                <span>{{data.brand_name}}</span>
+                            </td>
+                            <td nz-td>
+                                <span>{{data.create_time}}</span>
+                            </td>
+                            <td nz-td>
+                                <span [innerHtml]="data.remark"></span>
+                            </td>
+                            <td nz-td>
+                              <span *ngIf="this.service.validataAction('cw_goods_tag_edit')">
+                                <a (click)="edit(data)">修改</a>
+                                <span nz-table-divider></span>
+                              </span>
+                              <span *ngIf="this.service.validataAction('cw_goods_tag_del')">
+                                  <nz-popconfirm [nzTitle]="'确定取消吗?'" (nzOnConfirm)="del(data)">
+                                    <a nz-popconfirm>删除</a>
+                                  </nz-popconfirm>
+                              </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </nz-tab>
+            <nz-tab>
+                <ng-template #nzTabHeading>
+                    商品标签
+                </ng-template>
+                <form nz-form>
+                    <div nz-row nz-form-item>
+                        <div class="row-actions">
+                        <button nz-button nzType="primary" type="button" (click)="goods_add()" *ngIf="this.service.validataAction('cw_goods_tag_add')">
+                            <i class="anticon anticon-plus" style="font-size:12px;color:#fff;"></i>
+                            <span>新增</span>
+                        </button>
+                        </div>
+                        <div class="row-questions">
+                        <nz-input [nzType]="'search'" [nzPlaceHolder]="'请输入商品名称'" name="searchText" [(ngModel)]="goods_param.searchText" style="width: 200px;"
+                            (nzOnSearch)="reload(true)"></nz-input>
+                        </div>
+                    </div>
+                </form>
+                <nz-table #goods_nzTable  nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="goods_data" [nzLoading]="_loading" [nzPageSize]="goods_param.pageSize"
+                      [nzPageIndex]="goods_param.pageNum" [nzTotal]="goods_param.total" (nzPageIndexChangeClick)="goods_param.pageNum=$event;goods_load($event)"
+                      (nzPageSizeChange)="goods_param.pageNum=1;goods_param.pageSize=$event;goods_load($event)">
+                    <thead nz-thead>
+                        <tr>
+                          <th nz-th nzCheckbox>
+                            <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+                            </label>
+                          </th>
+                          <th nz-th [nzWidth]="'50%'">
+                              <span>标签名称</span>
+                          </th>
+                          <th nz-th [nzWidth]="'10%'">
+                              <span>创建时间</span>
+                          </th>
+                        
+                          <th nz-th>
+                              <span>操作</span>
+                          </th>
+                        </tr>
+                        </thead>
+                        <tbody nz-tbody>
+                          <tr nz-tbody-tr *ngFor="let data of goods_nzTable.data">
+                            <td nz-td nzCheckbox>
+                              <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
+                              </label>
+                            </td>
+                            <td nz-td>
+                                <span>{{data.tag_name}}</span>
+                            </td>
+                            <td nz-td>
+                                <span>{{data.create_time}}</span>
+                            </td>
+                            <td nz-td>
+                              <span *ngIf="this.service.validataAction('cw_goods_tag_edit')">
+                                <a (click)="goods_edit(data)">修改</a>
+                                <span nz-table-divider></span>
+                              </span>
+                              <span *ngIf="this.service.validataAction('cw_goods_tag_del')">
+                                  <nz-popconfirm [nzTitle]="'确定取消吗?'" (nzOnConfirm)="goods_del(data)">
+                                    <a nz-popconfirm>删除</a>
+                                  </nz-popconfirm>
+                              </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </nz-tab>
+        </nz-tabset>
+  </nz-content>
+</nz-layout>
+<nz-modal [nzVisible]="isVisible" [nzTitle]="formTitle" [nzContent]="modalContent" (nzOnCancel)="handleCancel($event)" (nzOnOk)="handleOk($event)">
+    <ng-template #modalContent>
+        <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()">
+            <div nz-form-item nz-row class="notErrMsg" >
+                <div nz-form-label>
+                    <label nz-form-item-required>品牌编码</label>
+                </div>
+                <div nz-form-control>
+                    <nz-input formControlName="brand_code"  [nzType]="'text'" [(ngModel)]="selRow.brand_code" [nzPlaceHolder]="'请填写品牌编码'"></nz-input>
+                </div>
+            </div>
+            <div nz-form-item nz-row class="notErrMsg" >
+                <div nz-form-label>
+                    <label nz-form-item-required>品牌名称</label>
+                </div>
+                <div nz-form-control>
+                    <nz-input formControlName="brand_name"  [nzType]="'text'" [(ngModel)]="selRow.brand_name" [nzPlaceHolder]="'请填写品牌名称'"></nz-input>
+                </div>
+            </div>
+            <div nz-form-item nz-row class="notErrMsg" >
+                <div nz-form-label>
+                    <label nz-form-item-required>品牌标签备注</label>
+                </div>
+                <div nz-form-control>
+                    <nz-input formControlName="remark" [nzRows]="2" [nzType]="'textarea'" [(ngModel)]="selRow.remark" [nzPlaceHolder]="'品牌标签备注'" [nzSize]="'large'"></nz-input>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+  </nz-modal>
+  <nz-modal [nzVisible]="goods_isVisible" [nzTitle]="formTitle" [nzContent]="goods_modalContent" (nzOnCancel)="handleCancel($event)" (nzOnOk)="goods_handleOk($event)">
+    <ng-template #goods_modalContent>
+        <form nz-form [formGroup]="myForm" (ngSubmit)="goods_submitForm()">
+            <div nz-form-item nz-row class="notErrMsg" >
+                <div nz-form-label>
+                    <label nz-form-item-required>商品名称</label>
+                </div>
+                <div nz-form-control>
+                    <nz-input formControlName="tag_name"  [nzType]="'text'" [(ngModel)]="goods_selRow.tag_name" [nzPlaceHolder]="'请填写商品名称'"></nz-input>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+    </nz-modal>

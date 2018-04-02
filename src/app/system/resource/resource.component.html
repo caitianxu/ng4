@@ -1,0 +1,177 @@
+<nz-layout class="main-page-layout">
+    <nz-header class="main-page-header">
+        <nz-breadcrumb>
+            <nz-breadcrumb-item>
+                <a href="#/home">首页</a>
+            </nz-breadcrumb-item>
+            <nz-breadcrumb-item>
+                菜单管理
+            </nz-breadcrumb-item>
+        </nz-breadcrumb>
+    </nz-header>
+    <nz-content class="main-page-content">
+        <!--本系统不需要此功能-->
+        <div class="tableListSearch" style="display:none">
+            <form nz-form *ngIf="orgId==1">
+                <!--行-->
+                <div nz-row nz-form-item>
+                    <!--列-->
+                    <div nz-col [nzSpan]="6">
+                        <div nz-form-label nz-col [nzSpan]="5">
+                            <label>切换机构</label>
+                        </div>
+                        <div nz-form-control nz-col [nzSpan]="17">
+                            <nz-select name="selectOrg" [(ngModel)]="paramCol.org_id" [nzPlaceHolder]="'请选择'" (ngModelChange)="load()">
+                                <nz-option *ngFor="let option of orgList" [nzLabel]="option.org_name" [nzValue]="option.org_id"></nz-option>
+                            </nz-select>
+                        </div>
+                    </div>
+                    <div class="row-questions" style="padding: 2px 0;">
+                        <button nz-button nzType="primary" (click)="oneKeyPush()">
+                            <span>一键更新</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <nz-table #nzTable [nzDataSource]="tableData" [nzIsPagination]="false" [nzLoading]="_loading">
+            <thead nz-thead>
+                <tr>
+                    <th nz-th [nzWidth]="'20%'">
+                        <span>资源名称</span>
+                    </th>
+                    <th nz-th [nzWidth]="'10%'">
+                        <span>标识</span>
+                    </th>
+                    <th nz-th [nzWidth]="'15%'">
+                        <span>地址</span>
+                    </th>
+                    <th nz-th [nzWidth]="'10%'">
+                        <span>图标</span>
+                    </th>
+                    <th nz-th [nzWidth]="'10%'">
+                        <span>父级</span>
+                    </th>
+                    <th nz-th [nzWidth]="'10%'">
+                        <span>类型</span>
+                    </th>
+                    <th nz-th [nzWidth]="'5%'">
+                        <span>排序</span>
+                    </th>
+                    <!-- <th nz-th [nzWidth]="'5%'" *ngIf="orgId==1 && paramCol.org_id==1">
+                            <span>推送</span>
+                        </th> -->
+                    <th nz-th [nzWidth]="'20%'">
+                        <span>操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody nz-tbody>
+                <ng-template ngFor let-data [ngForOf]="nzTable.data">
+                    <ng-template ngFor let-item [ngForOf]="expandDataCache[data.res_id]">
+                        <tr nz-tbody-tr *ngIf="(item.parent && item.parent.expand) || !(item.parent)">
+                            <td nz-td>
+                                <span *ngIf="editRow.res_id != item.res_id">
+                                    <nz-row-indent [nzIndentSize]="item.level"></nz-row-indent>
+                                    <nz-row-expand-icon [(nzExpand)]="item.expand" (nzExpandChange)="collapse(expandDataCache[data.res_id],item,$event)" [nzShowExpand]="!!item.children && item.children.length > 0"></nz-row-expand-icon>
+                                    <span>{{item.res_name}}</span>
+                                </span>
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <nz-input [nzType]="'text'" name="res_name" [(ngModel)]="editRow.res_name"></nz-input>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.res_id != item.res_id">{{item.res_key}}</span>
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <nz-input [nzType]="'text'" name="res_key" [(ngModel)]="editRow.res_key"></nz-input>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.res_id != item.res_id">{{item.res_url}}</span>
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <nz-input [nzType]="'text'" name="res_url" [(ngModel)]="editRow.res_url"></nz-input>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.res_id != item.res_id">{{item.res_icon}}</span>
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <nz-input [nzType]="'text'" name="res_icon" [(ngModel)]="editRow.res_icon"></nz-input>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.res_id != item.res_id && item.res_id">{{item.parent.res_name}}</span>
+
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <nz-cascader nzChangeOnSelect [nzPlaceHolder]="'请选择'" [nzValueProperty]="'res_id'" [nzLabelProperty]="'res_name'" [nzOptions]="tableData"
+                                        [(ngModel)]="editRow.pname">
+                                    </nz-cascader>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.res_id != item.res_id">
+                                    <span *ngIf="item.res_type == 1">菜单</span>
+                                    <span *ngIf="item.res_type == 2">按钮</span>
+                                </span>
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <nz-select style="width: 100%;" [(ngModel)]="editRow.res_type" nzAllowClear [nzPlaceHolder]="'请选择类型'">
+                                        <nz-option *ngFor="let option of options" [nzLabel]="option.label" [nzValue]="option.value">
+                                        </nz-option>
+                                    </nz-select>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.res_id != item.res_id">
+                                    {{item.order_weight}}
+                                </span>
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <nz-input [nzType]="'text'" name="order_weight" [(ngModel)]="editRow.order_weight"></nz-input>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="item.res_id == 0">
+                                    <a (click)="_addChildren(item)" *ngIf="this.service.validataAction('resource_add')">新增资源</a>
+                                </span>
+                                <span *ngIf="editRow.res_id != item.res_id && item.res_id != 0">
+                                    <!-- 修改 -->
+                                    <ng-container *ngIf="this.service.validataAction('resource_edit')">
+                                        <a (click)="_editRow(item)">修改</a>
+                                        <span nz-table-divider *ngIf="this.service.validataAction('resource_del')"></span>
+                                    </ng-container>
+                                    <!-- 删除 -->
+                                    <ng-container *ngIf="this.service.validataAction('resource_del')">
+                                        <nz-popconfirm [nzTitle]="'确定要删除这个任务吗？'" (nzOnConfirm)="_delete(item)" [nzPlacement]="'left'">
+                                            <a nz-popconfirm >删除</a>
+                                        </nz-popconfirm>
+                                        <span nz-table-divider *ngIf="this.service.validataAction('resource_add')"></span>
+                                    </ng-container>
+                                    <nz-dropdown *ngIf="this.service.validataAction('resource_add')">
+                                        <a class="ant-dropdown-link" nz-dropdown>更多操作
+                                            <i class="anticon anticon-down"></i>
+                                        </a>
+                                        <ul nz-menu>
+                                            <li nz-menu-item>
+                                                <a (click)="_addAfter(item.parent)">新增同级</a>
+                                            </li>
+                                            <li nz-menu-item>
+                                                <a (click)="_addChildren(item)">新增子级</a>
+                                            </li>
+                                            <!-- <li nz-menu-item>
+                                                <a (click)="oneKeyPush(item.source_id)">更新</a>
+                                            </li> -->
+                                        </ul>
+                                    </nz-dropdown>
+                                </span>
+                                <span *ngIf="editRow.res_id == item.res_id">
+                                    <a (click)="_saveRow()">保存</a>
+                                    <span nz-table-divider></span>
+                                    <a (click)="_cancel()">取消</a>
+                                </span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </ng-template>
+            </tbody>
+        </nz-table>
+    </nz-content>
+</nz-layout>

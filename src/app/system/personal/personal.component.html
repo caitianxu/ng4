@@ -1,0 +1,194 @@
+<nz-layout class="main-page-layout">
+    <nz-header class="main-page-header">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item>
+          <a href="#/home">首页</a>
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item>
+          设置
+        </nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </nz-header>
+    <nz-content class="main-page-content">
+      <div nz-form-item nz-row class='header-bg'>
+        <div nz-form-item nz-row class='header-bg-top'>
+          <div nz-col [nzSpan]="2">
+            <img style="width:100%;border-radius: 50%;" src="{{ service.ctxPath + formBean.icon}}">
+          </div>
+          <div nz-col [nzSpan]="22" style="margin-top: 30px;">
+            <div nz-form-item nz-row>
+              <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSm]="8" [nzXs]="24">
+                  <label>用户名&emsp;</label>
+                </div>
+                <div nz-form-control nz-col [nzSm]="16" [nzXs]="24">
+                  {{formBean.user_name}}
+                </div>
+              </div>
+              <div nz-col [nzSpan]="18" style="text-align:right">
+                <nz-button-group [nzSize]="'small'">
+                  <button nz-button [nzType]="'primary'" (click)="showModalMiddle('other')">修改个人资料</button>
+                  <button nz-button (click)="showModalMiddle('pwd')">修改密码</button>
+                </nz-button-group>
+              </div>
+            </div>
+            <div nz-form-item nz-row>
+              <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSm]="8" [nzXs]="24" l>
+                  <label>真实姓名</label>
+                </div>
+                <div nz-form-control nz-col [nzSm]="16" [nzXs]="24">
+                  {{formBean.user_real_name}}
+                </div>
+              </div>
+              <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSm]="8" [nzXs]="24" l>
+                  <label>角色</label>
+                </div>
+                <div nz-form-control nz-col [nzSm]="16" [nzXs]="24">
+                  {{formBean.role_name}}
+                </div>
+              </div>
+              <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSm]="8" [nzXs]="24" l>
+                  <label>部门</label>
+                </div>
+                <div nz-form-control nz-col [nzSm]="16" [nzXs]="24">
+                  {{formBean.dept_name}}
+                </div>
+              </div>
+            </div>
+            <div nz-form-item nz-row>
+              <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSm]="8" [nzXs]="24" l>
+                  <label>联系电话</label>
+                </div>
+                <div nz-form-control nz-col [nzSm]="16" [nzXs]="24">
+                  {{formBean.phone || '--'}}
+                </div>
+              </div>
+              <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSm]="8" [nzXs]="24" l>
+                  <label>邮箱</label>
+                </div>
+                <div nz-form-control nz-col [nzSm]="16" [nzXs]="24">
+                  {{formBean.email || '--'}}
+                </div>
+              </div>
+              <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSm]="8" [nzXs]="24" l>
+                  <label>组织</label>
+                </div>
+                <div nz-form-control nz-col [nzSm]="16" [nzXs]="24">
+                  {{formBean.org_name}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nz-content>
+  </nz-layout>
+  
+  <nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="modalContent" [nzVisible]="isVisibleMiddle"
+    [nzWidth]="620" [nzTitle]="'修改个人资料'" (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle($event)">
+    <ng-template #modalContent>
+  
+      <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()" class="ditForm">
+        <div nz-form-item nz-row style="margin-bottom:0;">
+          <div nz-col [nzSpan]="12">
+            <div class="userHead">
+              <div class="uimg">
+                <img *ngIf="formBean.icon" src="{{ service.ctxPath + formBean.icon }}" />
+              </div>
+              <nz-upload [nzShowUploadList]="false" (nzChange)="fileUpload($event)" [nzAccept]="'image/gif,image/jpeg,image/png,image/jpg,image/bmp'"
+                nzAction="{{service.ctxPath + '/api/system/file/upload'}}" [nzData]="{type:'admin',token:service.token}">
+                <button nz-button type="button">
+                  <i class="anticon anticon-upload"></i>
+                  <span>上传头像</span>
+                </button>
+              </nz-upload>
+            </div>
+          </div>
+          <div nz-col [nzSpan]="12">
+            <div nz-form-item nz-row>
+              <div nz-form-label>
+                <label nz-form-item-required>用户名</label>
+              </div>
+              <div nz-form-control nzHasFeedback>
+                <nz-input formControlName="user_name" [(ngModel)]="formBean.user_name" [nzPlaceHolder]="'请输入帐号'"></nz-input>
+              </div>
+            </div>
+            <div nz-form-item nz-row>
+              <div nz-form-label>
+                <label>真实姓名</label>
+              </div>
+              <div nz-form-control>
+                <nz-input formControlName="user_real_name" [(ngModel)]="formBean.user_real_name" [nzPlaceHolder]="'请输入真实姓名'"></nz-input>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div nz-form-item nz-row>
+          <div nz-col [nzSpan]="12">
+            <div nz-form-label>
+              <label>个人邮箱</label>
+            </div>
+            <div nz-form-control>
+              <nz-input formControlName="email" [nzType]="'email'" [(ngModel)]="formBean.email" [nzPlaceHolder]="'请填写个人邮箱'"></nz-input>
+            </div>
+          </div>
+          <div nz-col [nzSpan]="12">
+            <div nz-form-label>
+              <label>联系电话/手机</label>
+            </div>
+            <div nz-form-control>
+              <nz-input formControlName="phone" [nzType]="'tel'" [(ngModel)]="formBean.phone" [nzPlaceHolder]="'请填写联系电话/手机'"></nz-input>
+            </div>
+          </div>
+        </div>
+        <button style="display:none;">save</button>
+      </form>
+  
+    </ng-template>
+  </nz-modal>
+  
+  <nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="modalContent2" [nzVisible]="isVisibleMiddle2"
+    [nzWidth]="420" [nzTitle]="'修改密码'" (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle2($event)">
+    <ng-template #modalContent2>
+  
+      <form nz-form [formGroup]="myForm2" (ngSubmit)="_submitForm2()" class="ditForm" style="padding:0 20px">
+        <div nz-form-item nz-row>
+          <div nz-form-label>
+            <label nz-form-item-required>旧密码</label>
+          </div>
+          <div nz-form-control nzHasFeedback>
+            <nz-input formControlName="old_pwd" [nzType]="'text'" [(ngModel)]="formBean2.old_pwd"></nz-input>
+            <div nz-form-explain *ngIf="getFormControl('old_pwd').dirty&&getFormControl('old_pwd').hasError('old_pwd')">请填写旧密码</div>
+          </div>
+        </div>
+        <div nz-form-item nz-row>
+          <div nz-form-label>
+            <label nz-form-item-required>新密码</label>
+          </div>
+          <div nz-form-control nzHasFeedback>
+            <nz-input formControlName="new_pwd" [nzType]="'password'" [(ngModel)]="formBean2.new_pwd" (ngModelChange)="updateConfirmValidator()"></nz-input>
+            <div nz-form-explain *ngIf="getFormControl('new_pwd').dirty&&getFormControl('new_pwd').hasError('new_pwd')">请填写新密码</div>
+          </div>
+        </div>
+        <div nz-form-item nz-row>
+          <div nz-form-label>
+            <label nz-form-item-required>确认密码</label>
+          </div>
+          <div nz-form-control nzHasFeedback>
+            <nz-input formControlName="confirm_new_pwd" [nzType]="'password'" [(ngModel)]="formBean2.confirm_new_pwd"></nz-input>
+            <div nz-form-explain *ngIf="getFormControl('confirm_new_pwd').dirty&&getFormControl('confirm_new_pwd').hasError('required')">请再次填写新密码</div>
+            <div nz-form-explain *ngIf="getFormControl('confirm_new_pwd').dirty&&getFormControl('confirm_new_pwd').hasError('confirm')">两次密码不一致</div>
+          </div>
+        </div>
+  
+        <button style="display:none;">save</button>
+      </form>
+  
+    </ng-template>
+  </nz-modal>

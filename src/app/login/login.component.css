@@ -1,0 +1,253 @@
+hr {
+    border: none;
+    border-top:1px #eee solid;
+    background: transparent;
+}
+.page-bg{
+    float: left;
+    width: 100%;
+    min-height: 100vh;
+    background: #e5e8ea;
+}
+.page-header{
+    height: 60px;
+    float: left;
+    width: 100%;
+    background: #05031A;
+}
+.page-logo{
+    float: left;
+    height: 60px;
+    width: 500px;
+}
+.page-logo img{
+    float: left;
+    height: 36px;
+    margin: 12px 0;
+    display: none;
+}
+.page-logo label{
+    float: left;
+    color: #d5d5d5;
+    line-height: 60px;
+    font-size: 16px;
+}
+.page-content{
+    float: left;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    min-height: 850px;
+}
+.savebg{
+    float: left;
+    width: 100%;
+    height: 100%;
+}
+.savebg img{
+    float: left;
+    width: 100%;
+    margin-top: -50px;
+}
+.saveContent{
+    position: absolute;
+    width: 100%;
+    top: 0;
+
+}
+.link-right{
+    float: right;
+}
+.link-right li{
+    float: left;
+    width: 100px;
+    padding: 15px 0 15px 30px;
+}
+.link-right li a{
+    color: #fff;
+    line-height: 28px;
+    text-align: center;
+    display: block;
+    width: 100%;
+}
+.form-header{
+    float: left;
+    width: 100%;
+}
+.form-header .p1{
+    float: left;
+    width: 100%;
+    height: 150px;
+    opacity: 0.6;
+}
+.form-header .p1 img{
+    display: block;
+    margin: 50px auto 0 auto;
+    height: 100px;
+}
+.form-header .p2{
+    float: left;
+    text-align: center;
+    font-size: 30px;
+    color: #fff;
+    width: 100%;
+    opacity: 0.6;
+    font-family: simsun;
+    padding-top: 20px;
+}
+.form-content{
+    float: left;
+    width: 100%;
+    padding-top: 80px;
+}
+.form-content-plan{
+    display: block;
+    margin: 0 auto;
+    width: 450px;
+    background: #fff;
+    height: 450px;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+}
+.form-footer{
+    text-align: center;
+    padding: 40px 0;
+    float: left;
+    width: 100%;
+    font-size: 14px;
+    color: #aaa;
+}
+.form-footer img{
+    height: 30px;
+    margin-right: 20px;
+}
+
+.form-content-plan h1{
+    padding: 10px 20px;
+}
+.form-content-plan .s1{
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    top: 0;
+    right: 0;
+    cursor: pointer
+}
+.form-content-plan .s1 img{
+    float: right;
+    height: 70%;
+    margin: 15%;
+}
+
+.form-content-plan .s2{
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+.form-content-plan .s2 img{
+    float: right;
+    height: 70%;
+    margin: 15%;
+}
+.login-tip{
+    right: 70px;
+    position: absolute;
+    top: 15px;
+    width: 70px;
+}
+.login-tip .poptip{
+    padding: 5px 10px;
+    border: 1px solid #108ee9;
+    height: 26px;
+    line-height: 16px;
+    position: relative;
+    z-index: 999;
+}
+.login-tip .poptip-arrow{
+    position: absolute;
+    z-index: 10; 
+    right: 0;
+    top: 6px;
+}
+
+.poptip-arrow em, .poptip-arrow span {
+    border-color: rgba(255, 255, 255, 0);
+    border-style: solid;
+    height: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 0;
+}
+
+.poptip-arrow em, .poptip-arrow span {
+    border-left-color: #108ee9;
+}
+.poptip-arrow em {
+    border-left-color: #108ee9;
+    border-width: 6px 0 6px 6px;
+    left: 1px;
+    top: 0;
+}
+.poptip-arrow span {
+    border-left-color: #fff;
+    border-width: 6px 0 6px 6px;
+}
+
+.poptip .poptip-content {
+    color: #108ee9;
+    font-size: 11px;
+    font-weight: 400;
+}
+.type1{
+    float: left;
+    width: 100%;
+    padding: 60px 30px 0 30px;
+}
+.row{
+    position: relative;
+    margin-bottom: 25px;
+    float: left;
+    width: 100%;
+}
+.ss1{
+    float: left;
+}
+.ss2{
+    float: right;
+}
+.row a{
+    padding: 0 5px;
+    color: #108ee9;
+}
+.type2 img{
+    display: block;
+    margin: 0 auto;
+    width: 170px;
+}
+.imgborder{
+    padding: 5px;
+    border: 1px #ddd solid;
+    width: 180px;
+    display: block;
+    margin: 0 auto;
+}
+.weixin_code p{
+    text-align: center;
+    margin-top: 10px;
+}
+.type2{
+    float: left;
+    width: 100%;
+    padding: 47px 30px 0 30px;
+}
+.type3{
+    float: left;
+    width: 100%;
+    padding: 0 30px 0 30px;
+}

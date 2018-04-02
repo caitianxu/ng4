@@ -1,0 +1,97 @@
+<nz-layout class="ng-main" style="height:100%">
+
+  <nz-sider class="ng-left" [nzWidth]="250" [nzCollapsed]="isCollapsed" *ngIf="service.loginUserMenus">
+    <div class="ng-left-logo">
+      <a href="#/home">
+        <img src="assets/img/logo.png">
+        <h1>崇文资源管理平台</h1>
+      </a>
+    </div>
+    <div class="ng-left-menu">
+      <ul nz-menu [nzMode]="'inline'" nzTheme='dark' [nzInlineCollapsed]="isCollapsed" *ngIf="service.loginUserMenus">
+        <ng-container *ngFor="let one of service.loginUserMenus">
+          <ng-container *ngIf="one.res_url  && one.res_type==1">
+            <li nz-menu-item>
+              <a href="{{one.res_url}}">
+                <span title>
+                  <i class="anticon anticon-{{one.res_icon}}"></i>
+                  <span>{{one.res_name}}</span>
+                </span>
+              </a>
+            </li>
+          </ng-container>
+          <ng-container *ngIf="one.children && one.children.length > 0 && one.res_type==1 && !one.res_url">
+            <li nz-submenu [(nzOpen)]="one.select" (nzOpenChange)="menuOpenChange($event, service.loginUserMenus, one)">
+              <span title>
+                <i class="anticon anticon-{{one.res_icon}}"></i>
+                <span>{{one.res_name}}</span>
+              </span>
+              <ul>
+                <ng-container *ngFor="let two of one.children">
+                  <ng-container *ngIf="two.res_url && two.res_type==1">
+                    <li nz-menu-item [nzSelected]="activeMenu && activeMenu.module == two.res_key">
+                      <a style="padding-left:5px;" href="{{two.res_url}}">{{two.res_name}}</a>
+                    </li>
+                  </ng-container>
+                  <ng-container *ngIf="two.children && two.children.length > 0 && two.res_type==1 && !two.res_url">
+                    <li nz-submenu [(nzOpen)]="two.select" (nzOpenChange)="menuOpenChange($event,  one.children, two)">
+                      <span title style="padding-left:5px;">{{two.res_name}}</span>
+                      <ul>
+                        <ng-container *ngFor="let three of two.children">
+                          <li nz-menu-item [nzSelected]="activeMenu && activeMenu.module == three.res_key" *ngIf="three.res_type==1">
+                            <a href="{{three.res_url}}">{{three.res_name}}</a>
+                          </li>
+                        </ng-container>
+                      </ul>
+                    </li>
+                  </ng-container>
+                </ng-container>
+              </ul>
+            </li>
+          </ng-container>
+        </ng-container>
+      </ul>
+    </div>
+  </nz-sider>
+
+  <nz-content>
+    <nz-layout class="ng-main ng-main-content">
+      <nz-header *ngIf="service.loginUserMenus">
+        <i class="anticon ng-action-menu" (click)="toggleCollapsed()" [class.anticon-menu-unfold]="isCollapsed" [class.anticon-menu-fold]="!isCollapsed"></i>
+        <a href="#/home" class="ng-action-home">
+          <i class="anticon anticon-home"></i> 
+          <span *ngIf="this.service.loginUserInfo" [innerHTML]="this.service.loginUserInfo.org_name"></span>
+        </a>
+        <ul class="ng-top-raction">
+          <li>
+            <i class="anticon anticon-search"></i>
+          </li>
+          <li>
+            <nz-badge [nzCount]="0" [nzOverflowCount]="0">
+              <ng-template #content>
+                <a class="head-example">
+                  <i class="anticon anticon-bell"></i>
+                </a>
+              </ng-template>
+            </nz-badge>
+          </li>
+          <li>
+            <span class="head-uName">
+              <img *ngIf="this.service.loginUserInfo && this.service.loginUserInfo.icon" src="{{this.service.loginUserInfo.icon}}">
+              <label *ngIf="this.service.loginUserInfo && !this.service.loginUserInfo.icon && this.service.loginUserInfo.user_real_name">{{this.service.loginUserInfo.user_real_name.substr(0,1)}}</label>
+              <img *ngIf="this.service.loginUserInfo && !this.service.loginUserInfo.icon  && !this.service.loginUserInfo.user_real_name" src="assets/img/footer-logo.png" class="head-uName-img">
+            </span>
+          </li>
+          <li>
+            <a style="color:rgba(0, 0, 0, 0.65);text-decoration: none;" href="#/system/personal">设置</a>
+          </li>
+          <li (click)="loginOut()">注销</li>
+        </ul>
+      </nz-header>
+      <nz-content>
+        <router-outlet></router-outlet>
+      </nz-content>
+    </nz-layout>
+  </nz-content>
+
+</nz-layout>

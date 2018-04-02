@@ -1,0 +1,109 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        资源中心
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        资源标签
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+    <div class="tableListSearch">
+      <div nz-row nz-form-item>
+        <div class="row-actions">
+          <button nz-button nzType="primary" *ngIf="this.service.validataAction('cw_res_class_add')" (click)="_cwResTagAdd()">
+            <i class="anticon anticon-plus"></i>
+            <span>新建</span>
+          </button>
+          <nz-popconfirm [nzTitle]="'删除后数据无法找回,确认删除吗？'" (nzOnConfirm)="_delRows()" [nzPlacement]="'bottom'">
+            <button nz-popconfirm nz-button nzType="danger" type="button" *ngIf="this.service.validataAction('role_del')">
+              <i class="anticon anticon-delete"></i>
+              <span>删除</span>
+            </button>
+          </nz-popconfirm>
+        </div>
+        <div class="row-questions">
+          <nz-input [nzType]="'search'" [nzPlaceHolder]="'标签名称'" name="searchText" [(ngModel)]="paramCol.searchText" style="width: 200px;"
+            (nzOnSearch)="_reload(true)"></nz-input>
+        </div>
+      </div>
+    </div>
+    
+    <nz-table #nzTable nzShowSizeChanger [nzShowTotal]="true"
+     [nzAjaxData]="tableData" 
+     [nzLoading]="_loading" 
+     [nzPageSize]="param.pageSize"
+     [nzPageIndex]="param.pageNum" 
+     [nzTotal]="param.total" 
+     (nzPageIndexChangeClick)="param.pageNum=$event;_reload()"
+     (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;_reload()">
+        <thead nz-thead>
+          <tr>
+            <th nz-th nzCheckbox>
+                <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)"></label>
+            </th>
+            <th nz-th [nzWidth]="'10%'">
+              <span>编号</span>
+            </th>
+            <th nz-th [nzWidth]="'30%'">
+              <span>名称</span>
+            </th>
+            <th nz-th [nzWidth]="'20%'">
+              <span>创建时间</span>
+            </th>
+            <th nz-th [nzWidth]="'20%'">
+              <span>修改时间</span>
+            </th>
+            <th nz-th>
+                <span>操作</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td nzCheckbox>
+                <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)"></label>
+            </td>
+            <td nz-td>
+              <span>{{data.tag_id}}</span>
+            </td>
+            <td nz-td>
+              <span>{{data.tag_name}}</span>
+            </td>
+            <td nz-td>
+              <span>{{data.create_time}}</span>
+            </td>
+            <td nz-td>
+              <span>{{data.update_time}}</span>
+            </td>
+            <td>
+              <a (click)="_editRow(data)">修改</a>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+  </nz-content>
+</nz-layout>
+
+<nz-modal [nzVisible]="isVisible" [nzWrapClassName]="'vertical-center-modal'" 
+[nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter" [nzWidth]="200"
+(nzOnCancel)="handleCancel($event)">
+  <ng-template #modalTitle>
+    编辑标签
+  </ng-template>
+  <ng-template #modalContent>
+    <nz-input [nzType]="'text'" name="tag_name"  [nzPlaceHolder]="'请输入标签名称'" [(ngModel)]="formBean.tag_name"></nz-input>
+  </ng-template>
+  <ng-template #modalFooter>
+    <div style="text-align:center">
+      <button nz-button [nzType]="'primary'" [nzSize]="'large'" (click)="handleOk($event)" [nzLoading]="isConfirmLoading">
+        提 交
+      </button>
+    </div>
+  </ng-template>
+</nz-modal>

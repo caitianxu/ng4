@@ -1,0 +1,98 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+      <nz-breadcrumb>
+          <nz-breadcrumb-item>
+              <a href="#/home">首页</a>
+          </nz-breadcrumb-item>
+          <nz-breadcrumb-item>
+              会员管理
+          </nz-breadcrumb-item>
+      </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+      <div class="tableListSearch">
+          <!--表单-->
+          <form nz-form>
+              <!--行-->
+              <div nz-row nz-form-item>
+                  <!--列-->
+                  <div nz-col [nzSpan]="6">
+                      <div nz-form-label nz-col [nzSpan]="6">
+                          <label>微信昵称</label>
+                      </div>
+                      <div nz-form-control nz-col [nzSpan]="18">
+                          <nz-input [nzType]="'text'" name="name" [(ngModel)]="param.searchText" [nzPlaceHolder]="'请输入商品名称'" [nzSize]="'default'"></nz-input>
+                      </div>
+                  </div>
+                  <div nz-col [nzSpan]="5" style="margin-left:10px;">
+                      <button nz-button nzType="primary" (click)="reload(true)" [nzLoading]="_loading">
+                          <i class="anticon anticon-search"></i>
+                          <span>查询</span>
+                      </button>
+                      <button nz-button nzType="" (click)="resetForm()">
+                          <span>重置</span>
+                      </button>
+                  </div>
+              </div>
+          </form>
+    </div>
+    <nz-table #nzTable  nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="data" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+    [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;load($event)"
+    (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;load($event)">
+      <thead nz-thead>
+      <tr>
+        <th nz-th nzCheckbox>
+          <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+          </label>
+        </th>
+        <th nz-th [nzWidth]="'10%'">
+            <span>客户头像</span>
+        </th>
+        <th nz-th [nzWidth]="'20%'">
+            <span>昵称</span>
+        </th>
+        <th nz-th [nzWidth]="'10%'">
+            <span>性别</span>
+        </th>
+        <th nz-th [nzWidth]="'30%'">
+            <span>地址</span>
+        </th>
+        <th nz-th >
+            <span>邮箱</span>
+        </th>
+        <th nz-th [nzWidth]="'10%'">
+            <span>会员等级</span>
+        </th>
+      </tr>
+      </thead>
+      <tbody nz-tbody>
+        <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+          <td nz-td nzCheckbox>
+            <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
+            </label>
+          </td>
+          <td nz-td nz-row>
+            <div nz-col [nzSpan]="20" style="float:left;border:1px #ddd dashed;height:60px;margin-bottom:15px;background: #f5f8fa;">
+                <img src="{{service.ctxPath + data.goods_cover_small}}" alt="" style="float:left;width:100%;height:100%;">
+            </div>
+          </td>
+          <td nz-td>
+              <span>{{data.nick_name}}</span>
+          </td>
+          <td nz-td>
+              <span>{{['男','女'][data.sex-1]}}</span>
+          </td>
+          <td nz-td>
+              <span>{{data.address}}</span>
+          </td>
+          <td nz-td>
+              <span>{{data.email}}</span>
+          </td>
+          <td nz-td>
+              <span>{{data.vip_id}}</span>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </nz-content>
+</nz-layout>

@@ -1,0 +1,28 @@
+.pwImgList{
+    position: relative;
+    width: 100%;
+}
+.pwImgList .anticon-left{
+    position: absolute;
+    left: 0;
+    top: 50%;
+    font-size: 60px;
+    color: #108ee9;
+    cursor: pointer;
+}
+.pwImgList .anticon-right{
+    position: absolute;
+    right: 0;
+    top: 50%;
+    font-size: 60px;
+    color: #108ee9;
+    cursor: pointer;
+}
+.pwImgList .imgList{
+    display: block;
+    width: 500px;
+    margin:  0 auto;
+}
+.pwImgList .imgList img{
+    width: 100%;
+}

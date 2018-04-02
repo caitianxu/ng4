@@ -1,0 +1,355 @@
+<nz-layout class="main-page-layout">
+    <nz-header class="main-page-header">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item>
+          <a href="#/home">首页</a>
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item>
+          交易管理
+        </nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </nz-header>
+    <nz-content class="main-page-content">
+        <form nz-form>
+            <div nz-row nz-form-item>
+            <div nz-col [nzSpan]="8">
+                <div nz-form-label nz-col style="float:left;">
+                    <label>订单号/收货人/手机号</label>
+                </div>
+                <div nz-form-control nz-col [nzSpan]="12">
+                    <nz-input [nzType]="'text'" name="searchText" [(ngModel)]="param.searchText" [nzPlaceHolder]="'请输入查询条件'" [nzSize]="'default'"></nz-input>
+                </div>
+            </div>
+            <div nz-col [nzSpan]="8">
+                <div nz-form-label nz-col style="float:left;">
+                    <label>订单状态</label>
+                </div>
+                <div nz-form-control nz-col [nzSpan]="14">
+                    <nz-select style="width: 200px;" name="order_status" nzAllowClear [nzPlaceHolder]="'请选择'" [(ngModel)]="param.order_status" nzShowSearch>
+                    <nz-option *ngFor="let item of orderList" [nzLabel]="item.name" [nzValue]="item.id"></nz-option>
+                  </nz-select>
+                </div>
+            </div>
+            <div nz-col [nzSpan]="8">
+                <div nz-form-label nz-col style="float:left;">
+                    <label>时间筛选</label>
+                </div>
+                <div nz-form-control nz-col [nzSpan]="16">
+                    <nz-rangepicker name="searchTime" [(ngModel)]="param.searchTime" [nzPlaceholder]="['起始日期', '截止日期']"></nz-rangepicker>
+                </div>
+                
+            </div>
+          </div> 
+          <div nz-row nz-form-item>
+                <div class="row-actions">
+                    <button nz-button nzType="primary" type="button" (click)="_setting()">
+                    <i class="anticon anticon-aliwangwang-o" style="font-size:12px;color:#fff;"></i>
+                    <span>物流配置</span>
+                    </button>
+                    <!-- <nz-popconfirm [nzTitle]="'删除后数据无法找回,确认删除吗？'" (nzOnConfirm)="delRows()" [nzPlacement]="'bottom'">
+                        <button nz-popconfirm nz-button nzType="danger" type="button" *ngIf="this.service.validataAction('role_del')">
+                            <i class="anticon anticon-delete"></i>
+                            <span>删除</span>
+                        </button>
+                    </nz-popconfirm> -->
+                </div>
+              <div class="row-questions">
+                  <button nz-button nzType="primary" (click)="reload(true)">
+                      <i class="anticon anticon-search"></i>
+                      <span>查询</span>
+                  </button>
+                  <button nz-button nzType="" (click)="resetForm()">
+                      <span>重置</span>
+                  </button>
+              </div>
+          </div>
+        </form>
+        <nz-table #nzTable  nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="data" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+      [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;load($event)"
+      (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;load($event)">
+        <thead nz-thead>
+        <tr>
+          <th nz-th nzCheckbox>
+            <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+            </label>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+              <span>订单号</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+              <span>收货人</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+              <span>联系电话</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+              <span>订单状态</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+              <span>下单时间</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+              <span>付款时间</span>
+          </th>
+          <th nz-th >
+              <span>操作</span>
+          </th>
+        </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td nzCheckbox>
+              <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
+              </label>
+            </td>
+            <td nz-td>
+                <span>{{data.order_no}}</span>
+            </td>
+            <td nz-td>
+                <span>{{data.consignee}}</span>
+            </td>
+            <td nz-td>
+                <span>{{data.consignee_phone}}</span>
+            </td>
+            <td nz-td>
+                <span>{{orderList[data.order_status].name}}</span>
+            </td>
+            <td nz-td>
+                <span>{{data.create_time}}</span>
+            </td>
+            <td nz-td>
+                <span>{{data.pay_time}}</span>
+            </td>
+            <td nz-td>
+              <!-- <span *ngIf="this.service.validataAction('cw_orders_edit')">
+                <a (click)="_edit(data)">修改</a>
+                <span nz-table-divider></span>
+              </span> -->
+              <span *ngIf="this.service.validataAction('cw_orders_send')">
+                <a (click)="_send(data)">发货</a>
+                <span nz-table-divider></span>
+              </span>
+              <span >
+                <a (click)="_see(data)">查看详情</a>
+                <span nz-table-divider></span>
+              </span>
+              <span *ngIf="this.service.validataAction('cw_orders_edit')">
+                    <nz-dropdown>
+                        <a class="ant-dropdown-link" nz-dropdown>
+                            修改<i class="anticon anticon-down" style="margin-left:5px;"></i>
+                        </a>
+                        <ul nz-menu >
+                            <li nz-menu-item *ngFor="let item of orderList;" (click)="_edit(data.order_id,item.id)">{{item.name}}</li>
+                        </ul>
+                    </nz-dropdown>
+                <!-- <a (click)="_edit(data)">修改</a>
+                 <span nz-table-divider></span>  -->
+              </span>
+              <!-- <span *ngIf="this.service.validataAction('cw_orders_list_del')">
+                  <nz-popconfirm [nzTitle]="'确定取消吗?'" (nzOnConfirm)="del(data)">
+                    <a nz-popconfirm>删除</a>
+                  </nz-popconfirm>
+              </span> -->
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-content>
+  </nz-layout>
+  <!-- 交易配置 -->
+  <nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="seetingContent"
+    [nzVisible]="seetingList" (nzOnCancel)="Cancel($event)" (nzOnOk)="Ok($event)" [nzTitle]="'交易配置'" [nzFooter]="seeting_res">
+    <ng-template #seetingContent>
+        <form nz-form [formGroup]="myForm" (ngSubmit)="_submit_seeting()" class="ditForm">
+            <nz-card style="width:100%;">
+                <ng-template #title>
+                  运费设定
+                </ng-template>
+                <ng-template #extra>
+                  <a (click)="seetingRes()">更新</a>
+                </ng-template>
+                <ng-template #body>
+                  <p class="seeting_class">订单商品达到<span *ngIf="enditList!=Row.id">{{Row.money_off}}</span>
+                    <span *ngIf="enditList==Row.id">
+                        <nz-input [(ngModel)]="Row.money_off" [nzType]="'number'" formControlName="money_off" style="width:60px;"></nz-input>
+                    </span>元以上，免运费
+                  </p>
+                  <p class="seeting_class">说明:</p>
+                  <p class="seeting_class">湖北省默认单件按照<span *ngIf="enditList!=Row.id">{{Row.province_in}}</span>
+                    <span *ngIf="enditList==Row.id">
+                        <nz-input [(ngModel)]="Row.province_in" [nzType]="'number'" formControlName="province_in" style="width:60px;"></nz-input>
+                    </span>元
+                  </p>
+                  <p class="seeting_class">湖北省外区域单件按照<span *ngIf="enditList!=Row.id">{{Row.province_out}}</span>
+                    <span *ngIf="enditList==Row.id">
+                        <nz-input [(ngModel)]="Row.province_out" [nzType]="'number'" formControlName="province_out" style="width:60px;"></nz-input>
+                    </span>元
+                  </p>
+                  <p class="seeting_class">订单每多一件商品加收<span *ngIf="enditList!=Row.id">{{Row.one_more}}</span>
+                    <span *ngIf="enditList==Row.id">
+                        <nz-input [(ngModel)]="Row.one_more" [nzType]="'number'" formControlName="one_more" style="width:60px;"></nz-input>
+                    </span>元
+                  </p>
+                </ng-template>
+              </nz-card>
+        </form>
+    </ng-template>
+  </nz-modal>
+<nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="seeContent"
+  [nzVisible]="seeOrder" (nzOnCancel)="Cancel($event)" [nzTitle]="'订单详情'" [nzFooter]="false">
+  <ng-template #seeContent>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">订单编号:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.order_no}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">商品售价:</span>
+            <span nz-col [nzSpan]="16" ><i>¥</i>{{seeData.pay_fee}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">购买会员:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.nick_name}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">下单时间:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.create_time}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">付款时间:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.pay_time}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">收货人:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.consignee}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">收货人联系电话:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.consignee_phone}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">收货地址:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.address}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">订单状态:</span>
+            <span nz-col [nzSpan]="16"  [innerHtml]="orderLists[seeData.order_status]"></span>
+        </div>
+        <div class="see_class" nz-row>
+            <span nz-col [nzSpan]="6">运输费:</span>
+            <span nz-col [nzSpan]="16" >{{seeData.express_fee}}</span>
+        </div>
+        <div class="see_class" nz-row>
+            <div  nz-row style="margin-bottom:10px;">
+                <div nz-row>
+                    <span *ngIf="editRow!=seeData.order_id">
+                    <a (click)="edit(seeData)">更新物流</a>
+                    </span>
+                    <span *ngIf="editRow==seeData.order_id">
+                        <a (click)="save(seeData)">确定</a>
+                        <span nz-table-divider></span>
+                        <nz-popconfirm [nzTitle]="'确定取消?'" (nzOnConfirm)="cancel(seeData)">
+                        <a nz-popconfirm>取消</a>
+                        </nz-popconfirm>
+                    </span>
+                </div>
+                <div nz-row>
+                    <span nz-col [nzSpan]="12">
+                        <span nz-col [nzSpan]="8">快递物流:</span>
+                        <span nz-col [nzSpan]="16" *ngIf="editRow!=seeData.order_id">{{seeData.express}}</span>
+                        <span  *ngIf="editRow==seeData.order_id" >
+                            <nz-input [(ngModel)]="seeData.express"></nz-input>
+                        </span>
+                    </span>
+                    <span nz-col [nzSpan]="12">
+                        <span nz-col [nzSpan]="8">快递单号:</span>
+                        <span nz-col [nzSpan]="16" *ngIf="editRow!=seeData.order_id">{{seeData.express_num}}</span>
+                        <span   *ngIf="editRow==seeData.order_id" >
+                            <nz-input [(ngModel)]="seeData.express_num"></nz-input>
+                        </span>
+                    </span>
+                </div> 
+            </div>
+        </div>
+  </ng-template>
+</nz-modal>
+<nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="sendContent"
+  [nzVisible]="sendList" (nzOnCancel)="Cancel($event)" (nzOnOk)="sendOk($event)" [nzTitle]="'发货'">
+  <ng-template #sendContent>
+        <form nz-form [formGroup]="myForm" class="ditForm">
+            <nz-table #nzTable [nzDataSource]="orderData" [nzPageSize]="orderData.length">
+                <thead nz-thead>
+                    <tr>
+                    <th nz-th><span>名称</span></th>
+                    <th nz-th><span>商品数量</span></th>
+                    <th nz-th><span>商品类型</span></th>
+                    <th nz-th><span>库存</span></th>
+                    <th nz-th><span>实际售价</span></th>
+                    </tr>
+                </thead>
+                <tbody nz-tbody>
+                    <tr nz-tbody-tr *ngFor="let data of nzTable.orderData">
+                    <td nz-td><a>{{data.goods_name}}</a></td>
+                    <td nz-td>{{data.goods_count}}</td>
+                    <td nz-td>{{['纸质图书','音视频','电子书'][data.goods_type-1]}}</td>
+                    <td nz-td>{{data.inventory}}</td>
+                    <td nz-td>{{data.real_price}}</td>
+                    </tr>
+                </tbody>
+            </nz-table>
+            <div class="see_class" nz-row>
+                <span nz-col style="float:left;">协商价:</span>
+                <span nz-col [nzSpan]="16" >{{sendNow.bargain_fee}}</span>
+            </div>
+            <div class="see_class" nz-row>
+                <span nz-col style="float:left;">收货人:</span>
+                <span nz-col [nzSpan]="16" >{{sendNow.consignee}}</span>
+            </div>
+            <div class="see_class" nz-row>
+                <span nz-col style="float:left;">联系电话:</span>
+                <span nz-col [nzSpan]="16" >{{sendNow.consignee_phone}}</span>
+            </div>
+            <div class="see_class" nz-row>
+                <span nz-col style="float:left;">收货地址:</span>
+                <span nz-col [nzSpan]="16" >{{sendNow.address}}</span>
+            </div>
+            <!-- <div class="see_class" nz-row>
+                <span nz-col [nzSpan]="6">快递物流:</span>
+                <span nz-col [nzSpan]="16" >{{sendNow.order_no}}</span>
+            </div> -->
+            <div class="see_class" nz-row>
+                <div nz-form-item nz-row class="notErrMsg" >
+                    <div nz-form-label style="float:left;">
+                        <label>快递物流</label>
+                    </div>
+                    <div nz-form-control style="float:left;">
+                        <nz-input formControlName="express" [nzType]="'text'" [(ngModel)]="sendNow.express" [nzPlaceHolder]="'请填写物流公司'" ></nz-input>
+                    </div>
+                </div>
+                <div nz-form-item nz-row class="notErrMsg" >
+                    <div nz-form-label style="float:left;">
+                        <label>快递单号</label>
+                    </div>
+                    <div nz-form-control style="float:left;">
+                        <nz-input formControlName="express_num" [nzType]="'text'" [(ngModel)]="sendNow.express_num" [nzPlaceHolder]="'请填写快递单号'" ></nz-input>
+                    </div>
+                </div>
+            </div>
+            <!-- <div nz-form-item nz-row style="margin-bottom:10px;">
+                <div nz-form-label nz-col style="float:left;" >
+                    <label nz-form-item-required>快递公司</label>
+                </div>
+                <div nz-form-control nz-col [nzSpan]="16">
+                    <nz-input [nzType]="'text'" formControlName="express" [(ngModel)]="sendData.express" [nzPlaceHolder]="'请输入'" [nzSize]="'default'"></nz-input>
+                </div> 
+            </div>
+            <div nz-form-item nz-row style="margin-bottom:10px;">
+                <div nz-form-label nz-col style="float:left;" >
+                    <label nz-form-item-required>快递编号</label>
+                </div>
+                <div nz-form-control nz-col [nzSpan]="16">
+                    <nz-input [nzType]="'text'" formControlName="express_num" [(ngModel)]="sendData.express_num" [nzPlaceHolder]="'请输入'" [nzSize]="'default'"></nz-input>
+                </div> 
+            </div> -->
+        </form>
+  </ng-template>
+</nz-modal>

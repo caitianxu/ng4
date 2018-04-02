@@ -1,0 +1,118 @@
+<nz-layout class="main-page-layout">
+    <nz-header class="main-page-header">
+        <nz-breadcrumb>
+            <nz-breadcrumb-item>
+                <a href="#/home">首页</a>
+            </nz-breadcrumb-item>
+            <nz-breadcrumb-item>
+                操作日志
+            </nz-breadcrumb-item>
+        </nz-breadcrumb>
+    </nz-header>
+    <nz-content class="main-page-content">
+        <div class="tableListSearch">
+            <!--表单-->
+            <form nz-form>
+                <!--行-->
+                <div nz-row nz-form-item>
+                    <!--列-->
+                    <div nz-col [nzSpan]="6">
+                        <div nz-form-label nz-col [nzSpan]="5">
+                            <label>模糊查询</label>
+                        </div>
+                        <div nz-form-control nz-col [nzSpan]="17">
+                            <nz-input [nzType]="'text'" name="searchText" [(ngModel)]="paramCol.searchText" [nzPlaceHolder]="'操作用户/操作模块`'" [nzSize]="'default'"></nz-input>
+                        </div>
+                    </div>
+                    <div nz-col [nzSpan]="8">
+                        <div nz-form-label nz-col [nzSpan]="4">
+                            <label>日期查询</label>
+                        </div>
+                        <div nz-form-control nz-col [nzSpan]="20">
+                            <nz-rangepicker name="searchTime" [(ngModel)]="paramCol.searchTime" [nzPlaceholder]="['起始日期', '截止日期']"></nz-rangepicker>
+                        </div>
+                    </div>
+                    <div class="row-questions">
+                        <button nz-button nzType="primary" (click)="reload(true)" [nzLoading]="_loading">
+                            <i class="anticon anticon-search"></i>
+                            <span>查询</span>
+                        </button>
+                        <button nz-button nzType="" (click)="resetForm()">
+                            <span>重置</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <nz-table #nzTable nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="tableData" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+                [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;reload($event)"
+                (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;reload($event)">
+                <thead nz-thead>
+                    <tr>
+                        <th nz-th [nzWidth]="'10%'">
+                            <span>日志编码</span>
+                        </th>
+                        <th nz-th [nzWidth]="'35%'">
+                            <span>日志内容</span>
+                        </th>
+                        <th nz-th [nzWidth]="'10%'">
+                            <span>操作IP地址</span>
+                        </th>
+                        <th nz-th [nzWidth]="'15%'">
+                            <span>操作时间</span>
+                        </th>
+                        <th nz-th [nzWidth]="'10%'">
+                            <span>操作模块</span>
+                        </th>
+                        <th nz-th [nzWidth]="'10%'">
+                            <span>操作用户</span>
+                        </th>
+                        <th nz-th [nzWidth]="'10%'">
+                            <span>操作类型</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody nz-tbody>
+                    <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+                        <td nz-td>
+                            <span>
+                                {{data.action_log_id}}
+                            </span>
+                        </td>
+                        <td nz-td>
+                            <span>
+                                {{data.action_log_content}}
+                            </span>
+                        </td>
+                        <td nz-td>
+                            <span>
+                                {{data.action_ip}}
+                            </span>
+                        </td>
+                        <td nz-td>
+                            <span>
+                                {{data.action_time}}
+                            </span>
+                        </td>
+                        <td nz-td>
+                            <span>
+                                {{data.action_log_module_name}}
+                            </span>
+                        </td>
+                        <td nz-td>
+                            <span>
+                                {{data.action_user_name}}
+                            </span>
+                        </td>
+                        <td nz-td>
+                            <span>
+                                {{data.action_type}}
+                            </span>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </nz-table>
+        </div>
+    </nz-content>
+</nz-layout>

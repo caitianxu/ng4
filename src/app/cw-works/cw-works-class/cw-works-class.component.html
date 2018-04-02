@@ -1,0 +1,118 @@
+<nz-layout class="main-page-layout">
+    <nz-header class="main-page-header">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item>
+          <a href="#/home">首页</a>
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item>
+          作品管理
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item>
+          作品分类
+        </nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </nz-header>
+    <nz-content class="main-page-content">
+      <nz-layout style="background:#fff;">
+        <nz-sider [nzWidth]="300" style="padding: 0;background:#fff;">
+          <nz-card style="width:100%;min-height:300px;">
+            <ng-template #body>
+              <nz-table #nzTable 
+                [nzSize]="'middle'"
+                [nzDataSource]="dataSet" 
+                [nzIsPagination]="false">
+                <tbody nz-tbody style="cursor: pointer;">
+                  <ng-template ngFor let-data [ngForOf]="nzTable.data">
+                    <ng-template ngFor let-item [ngForOf]="expandDataCache[data.cat_id]">
+                      <tr nz-tbody-tr *ngIf="(item.parent&&item.parent.expand)||!(item.parent)" (click)="_selectItem(item)">
+                        <td nz-td [ngStyle]="{'background-color' : param.cat_id==item.cat_id ? '#daecf9' : ''}">
+                          <nz-row-indent [nzIndentSize]="item.level"></nz-row-indent>
+                          <nz-row-expand-icon [(nzExpand)]="item.expand" (nzExpandChange)="collapse(expandDataCache[data.cat_id],item,$event)" [nzShowExpand]="!!item.children && item.children.length > 0"></nz-row-expand-icon>
+                          {{item.cat_name}}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </ng-template>
+                </tbody>
+              </nz-table>
+            </ng-template>
+          </nz-card>
+        </nz-sider>
+        <nz-content style="padding: 0 24px;">
+            <div class="tableListSearch">
+              <div nz-row nz-form-item>
+                <div class="row-actions">
+                  <button nz-button nzType="primary" *ngIf="this.service.validataAction('cw_res_class_add')" (click)="_cwResClassAdd()">
+                    <i class="anticon anticon-plus"></i>
+                    <span>新建分类</span>
+                  </button>
+                </div>
+  
+                <div class="row-questions">
+                    <nz-input [nzType]="'search'" [nzPlaceHolder]="'机构名称'" name="searchText" [(ngModel)]="paramCol.searchText" style="width: 200px;"
+                    (nzOnSearch)="_reload(true)"></nz-input>
+                </div>
+              </div>
+            </div>
+            <nz-table #nzTable [nzIsPagination]="false" [nzAjaxData]="param.children" [nzLoading]="_loading">
+              <thead nz-thead>
+                <tr>
+                  <th nz-th [nzWidth]="'25%'">
+                    <span>名称</span>
+                  </th>
+                  <th nz-th [nzWidth]="'20%'">
+                    <span>创建时间</span>
+                  </th>
+                  <th nz-th [nzWidth]="'25%'">
+                    <span>状态</span>
+                  </th>
+                  <th nz-th [nzWidth]="'30%'">
+                    <span>操作</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody nz-tbody>
+                  <ng-container *ngFor="let data of nzTable.data">
+                      <tr nz-tbody-tr *ngIf="formBean.cat_id == data.cat_id">
+                          <td><nz-input [nzType]="'text'" name="cat_name" [(ngModel)]="formBean.cat_name"></nz-input></td>
+                          <td>{{data.create_time}}</td>
+                          <td></td>
+                          <td>
+                              <a (click)="_saveRow()">保存</a>
+                              <span nz-table-divider></span>
+                              <a (click)="_cancelRow(data)">取消</a>
+                          </td>
+                      </tr>
+                      <tr nz-tbody-tr *ngIf="formBean.cat_id != data.cat_id">
+                          <td>{{data.cat_name}}</td>
+                          <td>{{data.create_time}}</td>
+                          <td>
+                              <span *ngIf="this.service.validataAction('cw_res_class_enable')" >
+                                  <nz-switch [ngModel]="data.enabled == 1" [nzSize]="'small'" (click)="_rowEnabled(data)"></nz-switch>
+                              </span>
+                              <span *ngIf="!this.service.validataAction('cw_res_class_enable')">
+                                  <label *ngIf="data.enabled == 1" style="color:green">启用</label>
+                                  <label *ngIf="data.enabled != 1">停用</label>
+                              </span>
+                          </td>
+                          <td>
+                            <ng-container *ngIf="this.service.validataAction('cw_res_class_edit')" >
+                                <a (click)="_editRow(data)">修改</a>
+                                <span nz-table-divider *ngIf="this.service.validataAction('cw_res_class_del')" ></span>
+                            </ng-container>
+                            <ng-container *ngIf="this.service.validataAction('cw_res_class_del')" >
+                              <nz-popconfirm [nzTitle]="'确定要删除这个分类吗？'" (nzOnConfirm)="_delRow(data)" [nzPlacement]="'left'">
+                                  <a nz-popconfirm>删除</a>
+                              </nz-popconfirm>
+                            </ng-container>
+                          </td>
+                      </tr>
+                  </ng-container>
+                 
+              </tbody>
+            </nz-table>
+  
+        </nz-content>
+      </nz-layout>
+    </nz-content>
+  </nz-layout>

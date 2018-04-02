@@ -1,0 +1,104 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        角色管理
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+    <div class="tableListSearch">
+      <!--表单-->
+      <form nz-form>
+        <!--行-->
+        <div nz-row nz-form-item>
+          <div class="row-actions">
+            <button nz-button nzType="primary" (click)="showModalMiddle()" type="button" *ngIf="this.service.validataAction('role_add')">
+              <i class="anticon anticon-plus"></i>
+              <span>新增</span>
+            </button>
+            <button nz-button nzType="primary" (click)="editModalMiddle()" type="button" *ngIf="this.service.validataAction('role_edit')">
+              <i class="anticon anticon-edit"></i>
+              <span>修改</span>
+            </button>
+            <nz-popconfirm [nzTitle]="'删除后数据无法找回,确认删除吗？'" (nzOnConfirm)="delRows()" [nzPlacement]="'bottom'">
+              <button nz-popconfirm nz-button nzType="danger" type="button" *ngIf="this.service.validataAction('role_del')">
+                <i class="anticon anticon-delete"></i>
+                <span>删除</span>
+              </button>
+            </nz-popconfirm>
+
+          </div>
+          <div class="row-questions">
+            <nz-input [nzType]="'search'" [nzPlaceHolder]="'角色名称'" name="searchText" [(ngModel)]="paramCol.searchText" style="width: 200px;"
+              (nzOnSearch)="reload(true)"></nz-input>
+          </div>
+        </div>
+      </form>
+      <nz-table #nzTable nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="tableData" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+        [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;reload($event)"
+        (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;reload($event)">
+        <thead nz-thead>
+          <tr>
+            <th nz-th nzCheckbox>
+              <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+              </label>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>角色名称</span>
+              <nz-table-sort [(nzValue)]="sortMap.role_name" (nzValueChange)="sort('role_name', $event)"></nz-table-sort>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>是否管理角色</span>
+            </th>
+            <th nz-th>
+              <span>备注</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td nzCheckbox>
+              <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)"></label>
+            </td>
+            <td nz-td>{{data.role_name}}</td>
+            <td nz-td>{{data.role_type == 1 ? '是' : '否'}}</td>
+            <td nz-td *ngIf="data.remark">{{data.remark}}</td>
+            <td nz-td *ngIf="!data.remark">--</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </nz-content>
+</nz-layout>
+
+
+<nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="modalContent" [nzVisible]="formBean.isVisibleMiddle"
+  [nzTitle]="formBean.formTitle" (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle($event)">
+  <ng-template #modalContent>
+
+    <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()">
+      <div nz-form-item nz-row class="notErrMsg">
+        <div nz-form-label>
+          <label nz-form-item-required>角色名称</label>
+        </div>
+        <div nz-form-control>
+          <nz-input formControlName="role_name" [nzType]="'text'" [(ngModel)]="formBean.role_name" [nzPlaceHolder]="'请填写角色名称'"></nz-input>
+        </div>
+      </div>
+      <div nz-form-item nz-row class="notErrMsg">
+        <div nz-form-label>
+          <label>备注</label>
+        </div>
+        <div nz-form-control>
+          <nz-input formControlName="remark" [nzType]="'textarea'" [nzAutosize]="{minRows:3, maxRows:3}" [(ngModel)]="formBean.remark"></nz-input>
+        </div>
+      </div>
+      <button style="display:none;">save</button>
+    </form>
+
+  </ng-template>
+</nz-modal>

@@ -1,0 +1,134 @@
+<nz-layout class="main-page-layout">
+        <nz-header class="main-page-header">
+            <nz-breadcrumb>
+                <nz-breadcrumb-item>
+                    <a href="#/home">首页</a>
+                </nz-breadcrumb-item>
+                <nz-breadcrumb-item>
+                    组织管理
+                </nz-breadcrumb-item>
+            </nz-breadcrumb>
+        </nz-header>
+        <nz-content class="main-page-content">
+            <!--本系统不需要切换机构查看组织功能-->
+            <div class="tableListSearch" style="display:none">
+                <!--表单-->
+                <form nz-form>
+                    <!--行-->
+                    <div nz-row nz-form-item>
+                        <!--列-->
+                        <div nz-col [nzSpan]="6">
+                            <nz-select name="selectOrg" [(ngModel)]="param.org_id" [nzPlaceHolder]="'请选择'" (ngModelChange)="load()">
+                                <nz-option *ngFor="let option of orgList" [nzLabel]="option.org_name" [nzValue]="option.org_id"></nz-option>
+                            </nz-select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <nz-table #nzTable [nzDataSource]="tableData" [nzIsPagination]="false" [nzLoading]="_loading">
+                <thead nz-thead>
+                    <tr>
+                        <th nz-th [nzWidth]="'15%'">
+                            <span>组织名称</span>
+                        </th>
+                        <th nz-th [nzWidth]="'15%'">
+                            <span>组织编码</span>
+                        </th>
+                        <th nz-th [nzWidth]="'15%'">
+                            <span>父级组织</span>
+                        </th>
+                        <th nz-th [nzWidth]="'15%'">
+                            <span>办公地点</span>
+                        </th>
+                        <th nz-th [nzWidth]="'15%'">
+                            <span>描述</span>
+                        </th>
+                        <th nz-th [nzWidth]="'15%'">
+                            <span>操作</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody nz-tbody>
+                    <ng-template ngFor let-data [ngForOf]="nzTable.data">
+                        <ng-template ngFor let-item [ngForOf]="expandDataCache[data.dept_id]">
+                            <tr nz-tbody-tr *ngIf="(item.parent && item.parent.expand) || !(item.parent)">
+                                <td nz-td>
+                                    <span *ngIf="editRow.dept_id != item.dept_id">
+                                        <nz-row-indent [nzIndentSize]="item.level"></nz-row-indent>
+                                        <nz-row-expand-icon [(nzExpand)]="item.expand" (nzExpandChange)="collapse(expandDataCache[data.dept_id],item,$event)" [nzShowExpand]="!!item.children && item.children.length > 0"></nz-row-expand-icon>
+                                        <span>{{item.dept_name}}</span>
+                                    </span>
+                                    <span *ngIf="editRow.dept_id == item.dept_id">
+                                        <nz-input [nzType]="'text'" name="dept_name" [nzPlaceHolder]="'请填写'" [(ngModel)]="editRow.dept_name"></nz-input>
+                                    </span>
+                                </td>
+                                <td nz-td>
+                                    <span *ngIf="editRow.dept_id != item.dept_id && item.dept_pid != 0">{{item.dept_code}}</span>
+                                    <span *ngIf="editRow.dept_id == item.dept_id">
+                                        <nz-input [nzType]="'text'" name="dept_code" [(ngModel)]="editRow.dept_code"></nz-input>
+                                    </span>
+                                </td>
+                                <td nz-td>
+                                    <span *ngIf="editRow.dept_id != item.dept_id && item.dept_pid != 0">{{item.parent.dept_name}}</span>
+                                    <span *ngIf="editRow.dept_id == item.dept_id">
+                                        <nz-cascader nzChangeOnSelect [nzPlaceHolder]="'请选择'" [nzValueProperty]="'dept_id'" [nzLabelProperty]="'dept_name'" [nzOptions]="tableData"
+                                            [(ngModel)]="editRow.pname">
+                                        </nz-cascader>
+                                    </span>
+                                </td>
+                                <td nz-td>
+                                    <span *ngIf="editRow.dept_id != item.dept_id && item.dept_pid != 0">{{item.address}}</span>
+                                    <span *ngIf="editRow.dept_id == item.dept_id">
+                                        <nz-input [nzType]="'text'" name="address" [(ngModel)]="editRow.address"></nz-input>
+                                    </span>
+                                </td>
+                                <td nz-td>
+                                    <span *ngIf="editRow.dept_id != item.dept_id && item.dept_pid != 0">{{item.remark}}</span>
+                                    <span *ngIf="editRow.dept_id == item.dept_id">
+                                        <nz-input [nzType]="'text'" name="remark" [(ngModel)]="editRow.remark"></nz-input>
+                                    </span>
+                                </td>
+                                <td nz-td>
+                                    <span *ngIf="item.dept_pid == 0 && this.service.validataAction('org_add')">
+                                        <a (click)="_addChildren(item)">新增组织</a>
+                                    </span>
+                                    <span *ngIf="editRow.dept_id != item.dept_id && item.dept_pid != 0 ">
+                                        <!-- 修改 -->
+                                        <ng-container *ngIf="this.service.validataAction('org_edit')">
+                                            <a (click)="_editRow(item)">修改</a>
+                                            <span nz-table-divider *ngIf="this.service.validataAction('org_del')"></span>
+                                        </ng-container>
+                                        <!-- 删除 -->
+                                        <ng-container *ngIf="this.service.validataAction('org_del')">
+                                            <nz-popconfirm [nzTitle]="'确定要删除这个任务吗？'" (nzOnConfirm)="_delete(item)" [nzPlacement]="'left'">
+                                                <a nz-popconfirm>删除</a>
+                                            </nz-popconfirm>
+                                            <span nz-table-divider *ngIf="this.service.validataAction('org_add')"></span>
+                                        </ng-container>
+                                        <nz-dropdown *ngIf="this.service.validataAction('org_add')">
+                                            <a class="ant-dropdown-link" nz-dropdown>更多操作
+                                                <i class="anticon anticon-down"></i>
+                                            </a>
+                                            <ul nz-menu>
+                                                <li nz-menu-item>
+                                                    <a (click)="_addAfter(item.parent)">新增同级部门</a>
+                                                </li>
+                                                <li nz-menu-item>
+                                                    <a (click)="_addChildren(item)">新增子级部门</a>
+                                                </li>
+                                            </ul>
+                                        </nz-dropdown>
+                                    </span>
+                                    <span *ngIf="editRow.dept_id == item.dept_id">
+                                        <a (click)="_saveRow()">保存</a>
+                                        <span nz-table-divider></span>
+                                        <a (click)="_cancel()">取消</a>
+                                    </span>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </ng-template>
+                </tbody>
+            </nz-table>
+        </nz-content>
+    </nz-layout>

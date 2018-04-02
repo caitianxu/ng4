@@ -1,0 +1,123 @@
+<nz-layout class="main-page-layout">
+    <nz-header class="main-page-header">
+        <nz-breadcrumb>
+            <nz-breadcrumb-item>
+                <a href="#/home">首页</a>
+            </nz-breadcrumb-item>
+            <nz-breadcrumb-item>
+                分类管理
+            </nz-breadcrumb-item>
+        </nz-breadcrumb>
+    </nz-header>
+    <nz-content class="main-page-content">
+        <nz-table #nzTable [nzDataSource]="data" [nzPageSize]="10" >
+            <thead nz-thead>
+                <tr>
+                    <th nz-th [nzWidth]="'20%'">
+                        <span>分类名称</span>
+                    </th>
+                    <th nz-th [nzWidth]="'10%'">
+                        <span>图标</span>
+                    </th>
+                    <th nz-th [nzWidth]="'10%'">
+                        <span>备注</span>
+                    </th>
+                    <th nz-th [nzWidth]="'10%'">
+                        <span>状态</span>
+                    </th>
+                    <th nz-th [nzWidth]="'20%'">
+                        <span>操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody nz-tbody>
+                <ng-template ngFor let-data [ngForOf]="nzTable.data">
+                    <ng-template ngFor let-item [ngForOf]="expandDataCache[data.cat_id]">
+                      <tr nz-tbody-tr *ngIf="(item.parent&&item.parent.expand)||!(item.parent)">
+                        <td nz-td>
+                          <nz-row-indent [nzIndentSize]="item.level"></nz-row-indent>
+                          <nz-row-expand-icon [(nzExpand)]="item.expand" (nzExpandChange)="collapse(expandDataCache[data.cat_id],item,$event)" [nzShowExpand]="!!item.children && item.children.length>0"></nz-row-expand-icon>
+                          {{item.cat_name}}
+                        </td>
+                        <td nz-td>图标</td>
+                        <td nz-td [innerHtml]="item.cat_remark" ></td>
+                        <td nz-td >
+                            <nz-switch [nzSize]="'small'" [(ngModel)]="item.project_id" (click)="_enabled(item)"></nz-switch>
+                        </td>
+                        <td nz-td >
+                            <span *ngIf='item.cat_id==0 && item.cat_pid==0'>
+                                <span *ngIf="this.service.validataAction('cw_prj_class_add')">
+                                    <a (click)="add()">新增</a>
+                                </span>
+                            </span>
+                            <span *ngIf='item.cat_id!=0 || item.cat_pid!=0'>
+                                <span *ngIf="this.service.validataAction('cw_prj_class_edit')">
+                                    <a (click)="edit(item)">修改</a>
+                                    <span nz-table-divider></span>
+                                </span>
+                                <span *ngIf="this.service.validataAction('cw_prj_class_del')">
+                                    <nz-popconfirm [nzTitle]="'确定取消吗?'" (nzOnConfirm)="del(item)">
+                                    <a nz-popconfirm>删除</a>
+                                    </nz-popconfirm>
+                                </span>
+                            </span>
+                            
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </ng-template>
+            </tbody>
+        </nz-table>
+    </nz-content>
+</nz-layout>
+<nz-modal [nzMaskClosable]="false" [nzWidth]="600" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="modalContent"
+[nzVisible]="isVisibleMiddle"  (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle($event)" [nzTitle]="formTitle">
+<ng-template #modalContent>
+
+  <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()">
+    <div nz-form-item nz-row class="notErrMsg" >
+        <div nz-form-label>
+            <label nz-form-item-required>分类名称</label>
+        </div>
+        <div nz-form-control>
+            <nz-input formControlName="cat_name"  [nzType]="'text'" [(ngModel)]="selRow.cat_name" [nzPlaceHolder]="'请填写分类名称'"></nz-input>
+        </div>
+    </div>
+    <div nz-form-item nz-row class="notErrMsg" >
+        <div nz-col [nzSpan]="12" style="padding-right:10px;">
+            <div nz-form-item nz-row class="notErrMsg" >
+                <div nz-form-label>
+                    <label nz-form-item-required>父级分类</label>
+                </div>
+                <div nz-form-control>
+                    <nz-cascader style="width:100%" formControlName="cat_pid" nzChangeOnSelect [nzPlaceHolder]="'请选择'" [nzValueProperty]="'cat_id'" [nzLabelProperty]="'cat_name'" [nzOptions]="data"
+                        [(ngModel)]="selRow.parent">
+                    </nz-cascader>
+                </div>
+            </div>
+        </div>
+        <div nz-col [nzSpan]="12" style="padding-left:10px;">
+            <div nz-form-item nz-row class="notErrMsg" >
+                <div nz-form-label>
+                    <label>排序</label>
+                </div>
+                <div nz-form-control>
+                    <nz-input formControlName="order_weight" [nzType]="'number'" [(ngModel)]="selRow.order_weight" [nzPlaceHolder]="'请填写排序'" ></nz-input>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div nz-form-item nz-row class="notErrMsg" >
+        <div nz-form-label>
+            <label nz-form-item-required>分类备注</label>
+        </div>
+        <div nz-form-control>
+            <!-- <nz-input formControlName="cat_remark"  [nzRows]="2" [nzType]="'textarea'" [nzSize]="'large'" [(ngModel)]="selRow.cat_remark" [nzPlaceHolder]="'请填写分类备注'"></nz-input> -->
+        </div>
+    </div>
+    
+    <button style="display:none;">save</button>
+  </form>
+
+</ng-template>
+</nz-modal>

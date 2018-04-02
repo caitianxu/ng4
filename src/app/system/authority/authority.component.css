@@ -1,0 +1,16 @@
+.content-left-li{
+    float: left;
+    height: 100%;
+    overflow: hidden;
+    width: 300px;
+    padding-right: 25px;
+}
+.content-right-con{
+    float: left;
+    width: calc(100% - 300px);
+    width: -moz-calc(100% - 300px);
+    width: -webkit-calc(100% - 300px);
+}
+.ant-card-body{
+    padding: 0 10px 10px 0 !important;
+}

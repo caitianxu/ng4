@@ -1,0 +1,182 @@
+html{-webkit-font-smoothing:antialiased;color:#333;margin:0;padding:0;font-size:13px;}
+body,html{-webkit-font-smoothing:antialiased;color:#333;margin:0;padding:0;font-size:13px;min-width:800px;}
+body,button,html{font-family:"Lantinghei SC","Open Sans",Arial,"Hiragino Sans GB","Microsoft YaHei","微软雅黑",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif}
+*{box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box}
+a{color:inherit;text-decoration:none;cursor: pointer}
+a:focus{outline:0;}
+a:hover,a:select{outline:0;text-decoration:none}
+h1,h2,h3,h4,h5{margin:0;padding:0;font-weight:400}
+button,input,select,textarea{outline:0;font-size:13px}
+textarea{resize:none}
+img{vertical-align: middle}
+body em,body i,body label,body li,body s,body span,body ul{list-style:none;margin:0;padding:0;font-style:normal;font-weight:400}
+a,button{-webkit-user-select:none;-ms-user-select:none;-moz-user-select:none;outline:0}
+input:-webkit-autofill{box-shadow:0 0 0 1000px #fff inset}
+.main{width: 1000px;margin: 0 auto;}
+.app-root{
+    min-width: 800px;
+    float: left;
+    width: 100%;
+}
+.center{
+    text-align: center !important;
+}
+.full{
+    width: 100% !important;
+}
+.full .ant-btn-group{
+    width: calc(100% - 35px);
+    width: -moz-calc(100% - 35px);
+    width: -webkit-calc(100% - 35px);
+}
+.full button{
+    width: 100%;
+    text-align: left;
+}
+.full button i{
+    float: right;
+}
+.btn-full{
+    width: 100% !important;
+}
+.btn-lg{
+    height: 50px !important;
+    font-size: 15px !important;
+}
+.input-lg .ant-input{
+    height: 50px !important;
+    font-size: 15px !important;
+}
+.input-lg .anticon{
+    font-size: 17px;
+    color: #999;
+}
+.input-lg .ant-input-affix-wrapper .ant-input:not(:first-child){
+    padding-left: 30px;
+}
+.ant-row.notErrMsg{
+    margin-bottom: 10px !important;
+}
+
+/*布局*/
+.ng-main{
+    min-height: 100vh;
+}
+.ng-left{
+    background: #001529 !important;
+    box-shadow: 2px 0 6px rgba(0,21,41,.35);
+    overflow-x: hidden;
+}
+.ng-left.ant-layout-sider-collapsed{
+    overflow-x: visible;
+}
+.ant-layout-sider-collapsed .ng-left-menu{
+    width: auto !important;
+    overflow: visible !important;
+}
+.ng-left .ant-menu-dark, .ng-left .ant-menu-dark .ant-menu-sub{
+    background: #001529;
+}
+.ng-left .ant-menu-dark .ant-menu-inline.ant-menu-sub{
+    background: #000c17;
+}
+.ng-left span{
+    font-size: 14px;
+}
+.ng-left span i{
+    font-size: 16px;
+}
+.ant-layout-sider-collapsed span i{
+    font-size: 20px !important;
+}
+:root .ant-menu-submenu-inline > .ant-menu-submenu-title:after{
+    font-size: 15px !important;
+}
+.ng-main-content .ant-layout-header{
+    padding: 0 12px 0 0;
+    background: #fff;
+    -webkit-box-shadow: 0 1px 4px rgba(0,21,41,.08);
+    box-shadow: 0 1px 4px rgba(0,21,41,.08);
+    position: relative;
+}
+.main-page-layout .ant-layout-header{
+    background: transparent !important;
+    box-shadow: none !important;
+    height: 34px;
+    line-height: 24px;
+    margin-top: -5px;
+}
+.main-page-layout{
+    min-height: calc(100vh - 64px);
+    min-height: -moz-calc(100vh - 64px);
+    min-height: -webkit-calc(100vh - 64px);
+    padding:15px;
+}
+.main-page-layout > .ant-layout-content{
+    background: #fff;
+}
+.main-page-layout.singOut{
+    min-height: 100vh !important;
+    padding: 0 !important;
+}
+.main-page-content{
+    padding: 10px 20px;
+}
+.row-actions{
+    float: left;
+}
+.row-questions{
+    float: right;
+}
+.row-questions button, .row-actions button{
+    min-width: 85px;
+}
+.tableListSearch .ant-form-item-label{
+    text-align: left;
+}
+.tableListSearch .ant-form-item{
+    margin-bottom: 10px;
+}
+/*files*/
+:host ::ng-deep .avatar-uploader,
+  :host ::ng-deep .avatar-uploader-trigger,
+  :host ::ng-deep .avatar {
+    width: 150px;
+    height: 150px;
+    display: block;
+  }
+
+  :host ::ng-deep .avatar-uploader {
+    display: block;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  :host ::ng-deep .avatar-uploader-trigger {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 28px;
+    color: #999;
+  }
+  .input-lg .has-error:after, .input-lg .has-success:after{
+    top: 9px !important;
+}
+.ant-menu-item .anticon, .ant-menu-submenu-title .anticon{
+    margin-right: 6px;
+}
+.ant-table-thead > tr > th{
+    color: #999;
+}
+table nz-input{
+    width: auto;
+}
+.ant-switch:after{
+    transition: none !important;
+}
+.cdk-overlay-container{
+    z-index: 100000 !important;
+}
+.ant-card{
+    border: 1px #eee solid;
+}

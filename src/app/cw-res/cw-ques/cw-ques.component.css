@@ -1,0 +1,14 @@
+
+.seeAnswer{
+    display:block;
+    border-top:1px solid #e9e9e9;
+    margin-top:10px;
+}
+
+.cont_answer,.cont_analys{
+    padding: 5px 0px;
+}
+.cont_question p,.cont_answer p,.cont_analys p{
+    font-size: 14px;
+    color: #000;
+}

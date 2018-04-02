@@ -1,0 +1,210 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        广告列表
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+    <div class="tableListSearch">
+      <!--表单-->
+      <form nz-form>
+        <div nz-row nz-form-item>
+          <!--列-->
+          <div nz-col [nzSpan]="8">
+            <div nz-form-label nz-col [nzSpan]="6">
+              <label>广告分类</label>
+            </div>
+            <div nz-form-control nz-col [nzSpan]="16">
+              <nz-select name="proSelect" [(ngModel)]="param.adv_cat_id" [nzPlaceHolder]="'请选择'"  nzAllowClear>
+                  <nz-option *ngFor="let option of advClassList"  [nzLabel]="option.adv_cat_name" [nzValue]="option.adv_cat_id" [nzDisabled]="option.disabled">
+                    </nz-option>
+              </nz-select>
+            </div>
+          </div>
+          <div nz-col [nzSpan]="8">
+            <div nz-form-label nz-col [nzSpan]="6">
+              <label>广告名称</label>
+            </div>
+            <div nz-form-control nz-col [nzSpan]="16">
+              <nz-input [nzType]="'text'" name="searchText" [(ngModel)]="param.searchText" [nzPlaceHolder]="'模糊查询'" [nzSize]="'default'"></nz-input>
+            </div>
+          </div>
+          <div nz-col [nzSpan]="8" style="padding:2px 0;">
+            <button nz-button nzType="primary" (click)="reload(true)" [nzLoading]="_loading">
+              <i class="anticon anticon-search"></i>
+              <span>查询</span>
+            </button>
+            <button nz-button nzType="button" (click)="resetForm()">
+              <span>重置</span>
+            </button>
+          </div>
+        </div>
+        <!--行-->
+        <div nz-row nz-form-item>
+          <div class="row-actions">
+            <button nz-button nzType="primary" (click)="showModalMiddle()" type="button" *ngIf="this.service.validataAction('cw_adv_list_add')">
+              <i class="anticon anticon-plus"></i>
+              <span>新增</span>
+            </button>
+            <nz-popconfirm [nzTitle]="'删除后数据无法找回,确认删除吗？'" (nzOnConfirm)="delRows()" [nzPlacement]="'bottom'" *ngIf="this.service.validataAction('cw_adv_list_del')">
+              <button nz-popconfirm nz-button nzType="danger" type="button">
+                <i class="anticon anticon-delete"></i>
+                <span>删除</span>
+              </button>
+            </nz-popconfirm>
+
+          </div>
+        </div>
+      </form>
+      <nz-table #nzTable nzShowSizeChanger [nzShowTotal]="true" [nzAjaxData]="tableData" [nzLoading]="_loading" [nzPageSize]="param.pageSize"
+        [nzPageIndex]="param.pageNum" [nzTotal]="param.total" (nzPageIndexChangeClick)="param.pageNum=$event;reload($event)"
+        (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;reload($event)">
+        <thead nz-thead>
+          <tr>
+            <th nz-th nzCheckbox>
+              <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
+              </label>
+            </th>
+            <th nz-th [nzWidth]="'5%'">
+              <span>封面</span>
+            </th>
+            <th nz-th [nzWidth]="'20%'">
+              <span>广告名称</span>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>广告链接</span>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>启用/停用</span>
+              <nz-table-sort [(nzValue)]="sortMap.enabled" (nzValueChange)="sort('enabled', $event)"></nz-table-sort>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>创建日期</span>
+              <nz-table-sort [(nzValue)]="sortMap.create_time" (nzValueChange)="sort('create_time', $event)"></nz-table-sort>
+            </th>
+            <th nz-th [nzWidth]="'15%'">
+              <span>描述</span>
+            </th>
+            <th nz-th [nzWidth]="'20%'">
+              <span>操作</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody nz-tbody>
+          <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+            <td nz-td nzCheckbox>
+              <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)"></label>
+            </td>
+            <td nz-td>
+              <img class="uhead" src="{{service.ctxPath + data.adv_img}}">
+            </td>
+            <td nz-td>
+              <span>{{data.adv_name}}</span>
+            </td>
+            <td nz-td>
+              <span>{{data.adv_url}}</span>
+            </td>
+            <td nz-td>
+              <span>
+                <nz-switch [ngModel]="data.enabled == 1" [nzSize]="'small'" [nzDisabled]="!this.service.validataAction('cw_adv_list_enable')"
+                  (click)="_enabled(data)"></nz-switch>
+              </span>
+            </td>
+            <td nz-td>
+              <span>{{data.create_time}}</span>
+            </td>
+            <td nz-td>
+              <span [innerHtml]="data.remark?data.remark:'--'"></span>
+            </td>
+            <td nz-td>
+              <ng-container *ngIf="this.service.validataAction('cw_adv_list_edit')">
+                <a href="javascript:void(0)" (click)="showModalMiddle(data)">修改</a>
+                <span nz-table-divider *ngIf="this.service.validataAction('cw_adv_list_del')"></span>
+              </ng-container>
+              <nz-popconfirm [nzTitle]="'确定要删除这条信息吗？'" (nzOnConfirm)="_delete(data.adv_id)" [nzPlacement]="'left'" *ngIf="this.service.validataAction('cw_adv_list_del')">
+                <a nz-popconfirm>删除</a>
+              </nz-popconfirm>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </nz-content>
+</nz-layout>
+
+
+<nz-modal [nzMaskClosable]="false" [nzWrapClassName]="'vertical-center-modal'" [nzContent]="modalContent" [nzVisible]="isVisibleMiddle"
+  [nzWidth]="620" [nzTitle]="formTitle" (nzOnCancel)="handleCancelMiddle($event)" (nzOnOk)="handleOkMiddle($event)">
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="myForm" (ngSubmit)="_submitForm()" class="ditForm">
+      <div nz-form-item nz-row>
+        <div class="userHead">
+          <div class="uimg">
+            <img *ngIf="formBean.adv_img" src="{{ service.ctxPath + formBean.adv_img }}" />
+          </div>
+          <nz-upload [nzShowUploadList]="false" (nzChange)="fileUpload($event)" [nzAccept]="'image/gif,image/jpeg,image/png,image/jpg,image/bmp'"
+            nzAction="{{service.ctxPath + '/api/system/file/upload'}}" [nzData]="{type:'admin',token:service.token}">
+            <button nz-button type="button">
+              <i class="anticon anticon-upload"></i>
+              <span>上传广告图</span>
+            </button>
+          </nz-upload>
+          <!-- <nz-input formControlName="icon" [(ngModel)]="formBean.icon" [nzType]="'hidden'"></nz-input> -->
+        </div>
+      </div>
+      <div nz-form-item nz-row>
+        <div nz-col [nzSpan]="12">
+          <div nz-form-label>
+            <label nz-form-item-required>广告名称</label>
+          </div>
+          <div nz-form-control nzHasFeedback>
+            <nz-input formControlName="adv_name" [(ngModel)]="formBean.adv_name" [nzPlaceHolder]="'请输入广告名称'"></nz-input>
+          </div>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <div nz-form-label>
+            <label>广告链接</label>
+          </div>
+          <div nz-form-control nzHasFeedback>
+            <nz-input formControlName="adv_url" [(ngModel)]="formBean.adv_url" [nzPlaceHolder]="'请输入广告链接'"></nz-input>
+          </div>
+        </div>
+      </div>
+      <div nz-form-item nz-row>
+        <div nz-col [nzSpan]="12">
+          <div nz-form-label>
+            <label nz-form-item-required>广告分类</label>
+          </div>
+          <div nz-form-control nzHasFeedback>
+            <nz-select formControlName="adv_cat_id" [nzPlaceHolder]="'请选择广告分类'" (ngModelChange)="getAdvClassRemark()" [(ngModel)]="formBean.adv_cat_id" [nzNotFoundContent]="'无法找到'">
+              <nz-option *ngFor="let option of advClassList"  [nzLabel]="option.adv_cat_name" [nzValue]="option.adv_cat_id" [nzDisabled]="option.disabled">
+              </nz-option>
+            </nz-select>
+          </div>
+        </div>
+        <div nz-col [nzSpan]="12">
+            <div nz-form-label>&emsp;</div>
+            <div nz-form-control>
+                {{advClassRemark}}
+            </div>
+        </div>
+      </div>
+      <div nz-form-item nz-row>
+        <div nz-form-label>
+          <label>描述</label>
+        </div>
+        <div nz-form-control nzHasFeedback>
+          <nz-input [nzType]="'textarea'" [nzRows]="'4'" formControlName="remark" [(ngModel)]="formBean.remark"></nz-input>
+        </div>
+      </div>
+
+      <button style="display:none;">save</button>
+    </form>
+
+  </ng-template>
+</nz-modal>

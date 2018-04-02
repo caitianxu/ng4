@@ -1,0 +1,268 @@
+<nz-layout class="main-page-layout">
+  <nz-header class="main-page-header">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>
+        <a href="#/home">首页</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        资源中心
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        音频管理
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-header>
+  <nz-content class="main-page-content">
+    <div class="tableListSearch">
+      <!--表单-->
+      <form nz-form>
+        <!--行-->
+        <div nz-row nz-form-item>
+          <!--列-->
+          <div nz-col [nzSpan]="8">
+            <div nz-form-label nz-col [nzSpan]="4">
+              <label>上传日期</label>
+            </div>
+            <div nz-form-control nz-col [nzSpan]="18">
+              <nz-rangepicker name="searchTime" [(ngModel)]="paramCol.searchTime" [nzPlaceholder]="['起始日期', '截止日期']"></nz-rangepicker>
+            </div>
+          </div>
+          <div nz-col [nzSpan]="6">
+            <div nz-form-label nz-col [nzSpan]="5">
+              <label>资源名称</label>
+            </div>
+            <div nz-form-control nz-col [nzSpan]="17">
+              <nz-input [nzType]="'text'" name="searchText" [(ngModel)]="paramCol.searchText" [nzPlaceHolder]="'模糊查询音频名称'" [nzSize]="'default'"></nz-input>
+            </div>
+          </div>
+          <div nz-col [nzSpan]="10" style="padding:2px 0;">
+            <button nz-button nzType="primary" (click)="_reload(true)" [nzLoading]="_loading">
+              <i class="anticon anticon-search"></i>
+              <span>查询</span>
+            </button>
+            <button nz-button nzType="button" (click)="_resetForm()">
+              <span>重置</span>
+            </button>
+            <a style="margin-left:8px;font-size:12px;" (click)="isCollapse=!isCollapse">
+              更多
+              <i class="anticon" [class.anticon-down]="isCollapse" [class.anticon-up]="!isCollapse"></i>
+            </a>
+            <!--文件上传-->
+            <nz-upload *ngIf="this.service.validataAction('cw_res_list_upload')" style="float:right" [nzShowUploadList]="false" (nzChange)="_uploadChange($event)"
+              [nzDisabled]="_uploadDisabled" nzAction="{{this.service.ctxPath + '/api/busiz/res/upload'}}">
+              <button nz-button [nzLoading]="_upload" nzType="dashed">
+                <i class="anticon anticon-upload"></i>
+                <span>上传资源文件</span>
+              </button>
+            </nz-upload>
+
+          </div>
+        </div>
+        <!--行-->
+        <div nz-row nz-form-item *ngIf="!isCollapse">
+            <div nz-col [nzSpan]="8">
+              <div nz-form-label nz-col [nzSpan]="4">
+                <label>资源分类</label>
+              </div>
+              <div nz-form-control nz-col [nzSpan]="18">
+                  <nz-cascader nzChangeOnSelect 
+                    [nzPlaceHolder]="'请选择'" 
+                    [nzValueProperty]="'cat_id'" 
+                    [nzLabelProperty]="'cat_name'" 
+                    [nzOptions]="resClassList"
+                    name="res_class_ids"
+                    [(ngModel)]="paramCol.res_class_ids">
+                  </nz-cascader>
+              </div>
+            </div>
+            <div nz-col [nzSpan]="6">
+                <div nz-form-label nz-col [nzSpan]="5">
+                  <label>资源类型</label>
+                </div>
+                <div nz-form-control nz-col [nzSpan]="17">
+                    <nz-select nzAllowClear [nzFilter]="false" [nzPlaceHolder]="'请选择资源类型'"  [(ngModel)]="paramCol.res_type" name="res_type">
+                      <nz-option *ngFor="let option of resTypeList" [nzLabel]="option" [nzValue]="option"></nz-option>
+                    </nz-select>
+                </div>
+              </div>
+          </div>
+      </form>
+    </div>
+
+    <nz-table #nzTable nzShowSizeChanger [nzShowTotal]="true"
+    [nzAjaxData]="tableData" 
+    [nzLoading]="_loading" 
+    [nzPageSize]="param.pageSize"
+    [nzPageIndex]="param.pageNum" 
+    [nzTotal]="param.total" 
+    (nzPageIndexChangeClick)="param.pageNum=$event;_reload()"
+    (nzPageSizeChange)="param.pageNum=1;param.pageSize=$event;_reload()">
+       <thead nz-thead>
+        <tr>
+          <th nz-th nzCheckbox>
+            <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)"></label>
+          </th>
+          <th nz-th [nzWidth]="'20%'">
+            <span>名称</span>
+          </th>
+          <th nz-th [nzWidth]="'7%'">
+            <span>格式</span>
+          </th>
+          <th nz-th [nzWidth]="'7%'">
+            <span>大小</span>
+          </th>
+          <th nz-th [nzWidth]="'7%'">
+            <span>类型</span>
+          </th>
+          <th nz-th [nzWidth]="'9%'">
+            <span>目录</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+            <span>分类</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+            <span>转码</span>
+          </th>
+          <th nz-th [nzWidth]="'10%'">
+            <span>创建时间</span>
+          </th>
+          <th nz-th>
+            <span>操作</span>
+          </th>
+        </tr>
+       </thead>
+       <tbody nz-tbody>
+          <ng-container *ngFor="let data of nzTable.data">
+            <tr nz-tbody-tr *ngIf="data.res_id == formBean.res_id">
+              <td nz-td nzCheckbox>
+                <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)"></label>
+              </td>
+              <td nz-td>
+                <span><nz-input [nzType]="'text'" name="res_name" [(ngModel)]="formBean.res_name"></nz-input></span>
+              </td>
+              <td nz-td>
+                <span>{{data.res_format}}</span>
+              </td>
+              <td nz-td>
+                <span *ngIf="data.res_format != 'pdf'">{{(data.res_size/1024/1024).toFixed(1)}}MB</span>
+                <span *ngIf="data.res_format == 'pdf'">{{data.res_size}}页</span>
+              </td>
+              <td nz-td>
+                <span>{{data.res_type}}</span>
+              </td>
+              <td nz-td>
+                <span>{{_getParentFile(data)}}</span>
+              </td>
+              <td nz-td>
+                <span>
+                    <nz-cascader nzChangeOnSelect 
+                    [nzPlaceHolder]="'请选择'" 
+                    [nzValueProperty]="'cat_id'" 
+                    [nzLabelProperty]="'cat_name'" 
+                    [nzOptions]="resClassList"
+                    name="res_class_ids"
+                    (nzSelectionChange)="_selectChange($event)"
+                    [(ngModel)]="formBean.res_class_ids">
+                  </nz-cascader>
+                </span>
+              </td>
+              <td nz-td>
+                <span *ngIf="data.trans_status == 2" style="color:red">失败</span>
+                <span *ngIf="data.trans_status != 2" style="color:green">成功</span>
+              </td>
+              <td nz-td>
+                <span>{{data.create_time}}</span>
+              </td>
+              <td>
+                <a (click)="_saveRow(data)">保存</a>
+                <span nz-table-divider *ngIf="this.service.validataAction('cw_res_list_del')"></span>
+                <a (click)="_cancelRow(data)">取消</a>
+              </td>
+            </tr>
+            <tr nz-tbody-tr *ngIf="data.res_id != formBean.res_id">
+                <td nz-td nzCheckbox>
+                  <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)"></label>
+                </td>
+                <td nz-td>
+                  <span>{{data.res_name}}</span>
+                </td>
+                <td nz-td>
+                  <span>{{data.res_format}}</span>
+                </td>
+                <td nz-td>
+                  <span *ngIf="data.res_format != 'pdf'">{{(data.res_size/1024/1024).toFixed(1)}}MB</span>
+                  <span *ngIf="data.res_format == 'pdf'">{{data.res_size}}页</span>
+                </td>
+                <td nz-td>
+                  <span>{{data.res_type}}</span>
+                </td>
+                <td nz-td>
+                  <span>{{_getParentFile(data)}}</span>
+                </td>
+                <td nz-td>
+                  <span>{{data.res_cat_name}}</span>
+                </td>
+                <td nz-td>
+                  <span *ngIf="data.trans_status == 2" style="color:red">失败</span>
+                  <span *ngIf="data.trans_status != 2" style="color:green">成功</span>
+                </td>
+                <td nz-td>
+                  <span>{{data.create_time}}</span>
+                </td>
+                <td>
+                  <!-- 修改 -->
+                  <ng-container *ngIf="this.service.validataAction('cw_res_list_edit')">
+                    <a (click)="_editRow(data)">修改</a>
+                    <span nz-table-divider *ngIf="this.service.validataAction('cw_res_list_del')"></span>
+                  </ng-container>
+                  <!-- 删除 -->
+                  <ng-container *ngIf="this.service.validataAction('cw_res_list_del')">
+                    <nz-popconfirm [nzTitle]="'确定要删除这条信息吗？'" (nzOnConfirm)="_delRow(data)" [nzPlacement]="'left'">
+                      <a nz-popconfirm>删除</a>
+                    </nz-popconfirm>
+                    <span nz-table-divider></span>
+                  </ng-container>
+                  <a (click)="_fwRow(data)">预览</a>
+                </td>
+              </tr>
+          </ng-container>
+            
+       </tbody>
+     </nz-table>
+  </nz-content>
+</nz-layout>
+<nz-modal [nzVisible]="isVisibleAudio" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter" (nzOnCancel)="_handleCancelAudio($event)">
+  <ng-template #modalTitle>
+    音频预览
+  </ng-template>
+  <ng-template #modalContent>
+    <audio *ngIf="audioModel" src="{{'http://cw.cjszyun.net'+audioModel.res_url}}" controls="controls" autoplay style="width: 100%;"></audio>
+  </ng-template>
+  <ng-template #modalFooter style="display:none"></ng-template>
+</nz-modal>
+
+<nz-modal [nzVisible]="isVisibleVideo" [nzTitle]="modalTitle1" [nzContent]="modalContent1" [nzFooter]="modalFooter1" (nzOnCancel)="_handleCancelAudio($event)">
+  <ng-template #modalTitle1>
+    视频预览
+  </ng-template>
+  <ng-template #modalContent1>
+    <video *ngIf="videoModel" src="{{'http://cw.cjszyun.net'+videoModel.res_url}}" style="width:100%" controls="controls" autoplay></video>
+  </ng-template>
+  <ng-template #modalFooter1 style="display:none"></ng-template>
+</nz-modal>
+
+<nz-modal [nzVisible]="isVisiblePdf" [nzWidth]="700" [nzTitle]="modalTitle2" [nzContent]="modalContent2" [nzFooter]="modalFooter2" (nzOnCancel)="_handleCancelAudio($event)">
+    <ng-template #modalTitle2>
+      <span *ngIf="pdfModel">第 {{ pdfMinNum +'/' +pdfModel.res_size}}页</span>
+    </ng-template>
+    <ng-template #modalContent2>
+        <div class="pwImgList" *ngIf="pdfModel">
+          <i class="anticon anticon-left" (click)="pdfMinNum1()"></i>
+          <div class="imgList">
+            <img src="{{service.ctxPath+pdfModel.res_analysis_url+'/img'+pdfMinNum+'.png'}}">
+          </div>
+          <i class="anticon anticon-right" (click)="pdfMinNum2()"></i>
+        </div>
+    </ng-template>
+    <ng-template #modalFooter2 style="display:none"></ng-template>
+  </nz-modal>

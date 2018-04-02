@@ -1,0 +1,134 @@
+<div class="page-bg">
+  <div class="page-header">
+    <div class="main">
+      <div class="page-logo">
+        <img src="assets/img/logo.png">
+        <label>整合资源、深度挖掘、提供一站式服务解决方案</label>
+      </div>
+      <ul class="link-right">
+        <li>
+          <a href="">文档中心</a>
+        </li>
+        <li>
+          <a href="">帮助中心</a>
+        </li>
+        <li>
+          <a href="">关于我们</a>
+        </li>
+        <li>
+          <a href="" nz-button [nzType]="'primary'">注册</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="savebg">
+      <img src="assets/img/banner1.jpg" *ngIf="getLoginBg(1)" />
+      <img src="assets/img/banner2.jpg" *ngIf="getLoginBg(2)" />
+      <img src="assets/img/banner3.jpg" *ngIf="getLoginBg(3)" />
+      <img src="assets/img/banner4.jpg" *ngIf="getLoginBg(4)" />
+    </div>
+    <div class="saveContent">
+      <div class="main">
+        <div class="form-header">
+          <p class="p1">
+            <img src="assets/img/logo.png" />
+          </p>
+          <p class="p2">崇文书局资源管理平台</p>
+        </div>
+        <div class="form-content">
+          <div class="form-content-plan">
+            <h1>欢迎使用本平台</h1>
+            <div class="s1" (click)="update_login_type()" *ngIf="login_type != 1">
+              <!-- <img src="assets/img/login-1.png" />
+              <div class="login-tip">
+                <div class="poptip">
+                  <div class="poptip-arrow">
+                    <em></em>
+                    <span></span>
+                  </div>
+                  <div class="poptip-content">扫码登录</div>
+                </div>
+              </div> -->
+            </div>
+            <div class="s2" (click)="update_login_type()" *ngIf="login_type == 1">
+              <img src="assets/img/login-2.png" />
+              <div class="login-tip">
+                <div class="poptip">
+                  <div class="poptip-arrow">
+                    <em></em>
+                    <span></span>
+                  </div>
+                  <div class="poptip-content">密码登录</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="type1" *ngIf="login_type != 1">
+              <form nz-form [formGroup]="myForm" class="login-form" (ngSubmit)="_submitForm()">
+                <div nz-form-item>
+                  <div class="input-lg" nz-form-control nzHasFeedback>
+                    <nz-input formControlName="userName" [(ngModel)]="userName" [nzPlaceHolder]="'请输入帐号/手机/邮箱'" [nzSize]="'large'">
+                      <ng-template #prefix>
+                        <i class="anticon anticon-user"></i>
+                      </ng-template>
+                    </nz-input>
+                  </div>
+                </div>
+                <div nz-form-item>
+                  <div class="input-lg" nz-form-control nzHasFeedback>
+                    <nz-input formControlName="password" [(ngModel)]="password" [nzType]="'password'" [nzPlaceHolder]="'请输入密码'" [nzSize]="'large'">
+                      <ng-template #prefix>
+                        <i class="anticon anticon-lock"></i>
+                      </ng-template>
+                    </nz-input>
+                  </div>
+                </div>
+                <div nz-form-item>
+                    <div class="input-lg">
+                        <div id="captcha-box"></div>
+                    </div>
+                  </div>
+
+                
+                <div nz-form-item>
+                  <div nz-form-control>
+                    <button nz-button class="login-form-button btn-lg btn-full" [nzType]="'primary'" [nzLoading]="loading">
+                      <em *ngIf=loading>正在</em>登录
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="type2" *ngIf="login_type == 1">
+              <div class="row">
+                <div class="weixin_code">
+                  <div class="imgborder">
+                    <img src="assets/img/8989.png" />
+                  </div>
+                  <p>打开微信/QQ扫描二维码登录</p>
+                </div>
+              </div>
+            </div>
+            <div class="type3">
+              <div class="row">
+                <hr>
+              </div>
+              <div class="row">
+                <span class="ss1">没有帐号?
+                  <a href="">立即注册</a>
+                </span>
+                <span class="ss2">
+                  <a href="">忘记密码?</a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-footer">
+          本系统由 “ 长江数字科技 ” 提供技术支持 [v2018.01.01]
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,99 @@
+<nz-layout class="main-page-layout">
+    <nz-header class="main-page-header">
+        <nz-breadcrumb>
+            <nz-breadcrumb-item>
+                <a href="#/home">首页</a>
+            </nz-breadcrumb-item>
+            <nz-breadcrumb-item>
+                视频分类
+            </nz-breadcrumb-item>
+        </nz-breadcrumb>
+    </nz-header>
+    <nz-content class="main-page-content">
+        <nz-table #nzTable [nzDataSource]="tableData" [nzIsPagination]="false" [nzLoading]="_loading">
+            <thead nz-thead>
+                <tr>
+                    <th nz-th [nzWidth]="'15%'">
+                        <span>分类名称</span>
+                    </th>
+                    <th nz-th [nzWidth]="'15%'">
+                        <span>父级分类</span>
+                    </th>
+                    <th nz-th [nzWidth]="'15%'">
+                        <span>描述</span>
+                    </th>
+                    <th nz-th [nzWidth]="'15%'">
+                        <span>操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody nz-tbody>
+                <ng-template ngFor let-data [ngForOf]="nzTable.data">
+                    <ng-template ngFor let-item [ngForOf]="expandDataCache[data.menu_id]">
+                        <tr nz-tbody-tr *ngIf="(item.parent && item.parent.expand) || !(item.parent)">
+                            <td nz-td>
+                                <nz-row-indent [nzIndentSize]="item.level"></nz-row-indent>
+                                <nz-row-expand-icon [(nzExpand)]="item.expand" (nzExpandChange)="collapse(expandDataCache[data.menu_id],item,$event)" [nzShowExpand]="!!item.children && item.children.length > 0"></nz-row-expand-icon>
+                                <span *ngIf="editRow.menu_id != item.menu_id">{{item.menu_name}}</span>
+                                <span *ngIf="editRow.menu_id == item.menu_id">
+                                    <nz-input [nzType]="'text'" name="menu_name" [nzPlaceHolder]="'请填写'" [(ngModel)]="editRow.menu_name"></nz-input>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.menu_id != item.menu_id && item.menu_id != 0">{{item.parent.menu_name}}</span>
+                                <span *ngIf="editRow.menu_id == item.menu_id">
+                                    <nz-cascader nzChangeOnSelect [nzPlaceHolder]="'请选择'" [nzValueProperty]="'menu_id'" [nzLabelProperty]="'menu_name'" [nzOptions]="tableData"
+                                        [(ngModel)]="editRow.pname">
+                                    </nz-cascader>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="editRow.menu_id != item.menu_id && item.menu_id != 0">{{item.remark}}</span>
+                                <span *ngIf="editRow.menu_id == item.menu_id">
+                                    <nz-input [nzType]="'text'" name="remark" [(ngModel)]="editRow.remark"></nz-input>
+                                </span>
+                            </td>
+                            <td nz-td>
+                                <span *ngIf="item.menu_id == 0 && this.service.validataAction('cw_train_class_add')">
+                                    <a (click)="_addChildren(item)">新增分类</a>
+                                </span>
+                                <span *ngIf="editRow.menu_id != item.menu_id && item.menu_id != 0 ">
+                                    <!-- 修改 -->
+                                    <ng-container *ngIf="this.service.validataAction('cw_train_class_edit')">
+                                        <a (click)="_editRow(item)">修改</a>
+                                        <span nz-table-divider *ngIf="this.service.validataAction('cw_train_class_del')"></span>
+                                    </ng-container>
+                                    <!-- 删除 -->
+                                    <ng-container *ngIf="this.service.validataAction('cw_train_class_del')">
+                                        <nz-popconfirm [nzTitle]="'确定要删除这个任务吗？'" (nzOnConfirm)="_delete(item)" [nzPlacement]="'left'">
+                                            <a nz-popconfirm>删除</a>
+                                        </nz-popconfirm>
+                                        <span nz-table-divider *ngIf="this.service.validataAction('cw_train_class_add')"></span>
+                                    </ng-container>
+                                    <nz-dropdown *ngIf="this.service.validataAction('org_add')">
+                                        <a class="ant-dropdown-link" nz-dropdown>更多操作
+                                            <i class="anticon anticon-down"></i>
+                                        </a>
+                                        <ul nz-menu>
+                                            <li nz-menu-item>
+                                                <a (click)="_addAfter(item.parent)">新增同级</a>
+                                            </li>
+                                            <li nz-menu-item>
+                                                <a (click)="_addChildren(item)">新增子级</a>
+                                            </li>
+                                        </ul>
+                                    </nz-dropdown>
+                                </span>
+                                <span *ngIf="editRow.menu_id == item.menu_id">
+                                    <a (click)="_saveRow()">保存</a>
+                                    <span nz-table-divider></span>
+                                    <a (click)="_cancel()">取消</a>
+                                </span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </ng-template>
+            </tbody>
+        </nz-table>
+    </nz-content>
+</nz-layout>
